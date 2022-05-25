@@ -17,10 +17,12 @@
 #include "ripemd160.c"
 #include "base58encode.cpp"
 
-
 using namespace std::chrono;
 
 static std::atomic<size_t> done;
+
+static unsigned char max[32] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+		0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40 };
 
 // Applies sha256 on a vector and writes it to that same vector
 void sha256(std::vector<unsigned char>& vector) {
@@ -99,13 +101,34 @@ std::string prvKeyToString(std::vector<unsigned char> const& prvKey) {
 }
 
 // Generates a random 32 bytes private key
-std::vector<unsigned char> generateRandomPrvKey() {
+// If trueGenerator = true, the key will be max 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140
+// Which is 4.32420386565660042066383539350 × 10 ^ 29 less keys
+std::vector<unsigned char> generateRandomPrvKey(bool trueGenerator = true) {
 	std::vector<unsigned char> prvKey;
 	std::random_device dev;
 	std::mt19937 rng(dev());
 	std::uniform_int_distribution<std::mt19937::result_type> udist{ 0, std::numeric_limits<unsigned char>().max() };
+
+	bool ok = false;
 	for (size_t i = 0; i < 32; i++) {
-		prvKey.push_back(udist(rng));
+		if (!trueGenerator || ok) {
+			prvKey.push_back(udist(rng));
+		}
+		else {
+			unsigned char c;
+			bool gen = false;
+			while (!gen) {
+				c = udist(rng);
+				if (c < max[i]) {
+					gen = true;
+					ok = true;
+				}
+				else if (c == max[i]) {
+					gen = true;
+				}
+			}
+			prvKey.push_back(c);
+		}
 	}
 	return prvKey;
 }

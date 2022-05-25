@@ -20,4 +20,14 @@ Run the python tool
 
 Finally run the program with the balance file as argument:
 
-`WalletMiner.exe M:\blockchair_bitcoin_addresses_latest.tsv`
+`WalletMiner.exe M:\blockchair_bitcoin_addresses_latest_sorted.tsv`
+
+# Build for Linux
+
+`sudo apt-get install -Y libssl-dev libsecp256k1-dev`
+
+`./make.sh`
+
+Finally run the program with the balance file as argument:
+
+`./WMiner /home/blockchair_bitcoin_addresses_latest_sorted.tsv`

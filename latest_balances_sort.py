@@ -1,4 +1,8 @@
+import sys
+import os
+
 def build_index(filename, sort_col):
+    print("Generating index...")
     index = []
     f = open(filename)
     while True:
@@ -17,12 +21,17 @@ def print_sorted(filename, newFilename, col_sort):
     index = build_index(filename, col_sort)
     f = open(filename)
     f2 = open(newFilename, 'w')
+    print("Writing file...")
     for col, offset, length in index:
         f.seek(offset)
         f2.write(f.read(length).rstrip('\n')+"\n")
 
 if __name__ == '__main__':
-    filename = 'c:/Users/moffa/Desktop/blockchair_bitcoin_addresses_latest.tsv'
-    sorted_filename = 'm:/blockchair_bitcoin_addresses_latest_sorted.tsv'
-    sort_col = 0
-    print_sorted(filename, sorted_filename, sort_col)
+    if len(sys.argv) < 2:
+        print("usage: python latest_balances_sort.py <balance_file>")
+        exit(1)
+    filename = sys.argv[1]
+    sorted_filename = os.getcwd() + "/blockchair_bitcoin_addresses_latest_sorted.tsv"
+    print("Generating sorted file...")
+    print_sorted(filename, sorted_filename, 0)
+    print("Done, file written to {}".format(sorted_filename))

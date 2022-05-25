@@ -92,8 +92,6 @@ if __name__ == "__main__":
 			print("{}".format(private.hex()))
 			# Extract public key from it
 			pub = privateKeyToAddress(private)
-			
-			print("{} => [{}]".format(private.hex(), pub))
 
 			value = fileSearch(addressesFile, pub)
 

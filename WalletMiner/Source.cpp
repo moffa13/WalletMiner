@@ -12,6 +12,7 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <filesystem>
 #include "ripemd160.c"
 #include "base58encode.cpp"
 
@@ -89,15 +90,14 @@ std::string prvKeyToString(std::vector<unsigned char> const& prvKey) {
 	std::stringstream ss;
 	ss << std::hex;
 
-
 	for (unsigned char i : prvKey) {
 		ss << std::setw(2) << std::setfill('0') << static_cast<int>(i);
 	}
 
-	return ss.str();
-		
+	return ss.str();	
 }
 
+// Generates a random 32 bytes private key
 std::vector<unsigned char> generateRandomPrvKey() {
 	std::vector<unsigned char> prvKey;
 	std::random_device dev;
@@ -179,12 +179,11 @@ std::optional<std::string> fileSearch(std::istream& is, std::string const& pubke
 		}
 	}
 	return std::nullopt;
-
 }
 
-auto getElapsedTime(time_point<system_clock, milliseconds> _lastUpdate) {
+auto getElapsedTime(time_point<system_clock, milliseconds> lastUpdate) {
 	time_point<system_clock, milliseconds> now = time_point_cast<milliseconds>(system_clock::now());
-	auto delay = duration_cast<milliseconds>(now - _lastUpdate);
+	auto delay = duration_cast<milliseconds>(now - lastUpdate);
 	auto delay_ms = delay.count();
 	return delay_ms;
 }
@@ -196,8 +195,8 @@ double getSpeed(T elapsedTime, U processedNumber) {
 	return processedNumber / ratio;
 }
 
-void check() {
-	std::ifstream f{ "r:/blockchair_bitcoin_addresses_latest_sorted.tsv", std::ifstream::binary };
+void check(const char* path) {
+	std::ifstream f{ path, std::ifstream::binary };
 	if (f.fail()) {
 		throw std::runtime_error{ "Error opening file." };
 	}
@@ -210,7 +209,7 @@ void check() {
 		if (res) {
 			// Really unlikely to happen, no need to sync =D
 			std::cout << "-------------------- NON NULL BALANCE FOUND --------------------" << std::endl;
-			std::ofstream os{ "M:/balance." + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))  + ".txt", std::ofstream::app};
+			std::ofstream os{ std::filesystem::current_path().string() + "/walletminer.balance." + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ".txt", std::ofstream::app};
 			std::string addrBal{ prvKeyToString(prv) + " => [" + pub + "]" + ", BALANCE: " + *res + "sat\n" };
 			os.write(addrBal.c_str(), addrBal.size());
 			os.close();
@@ -223,15 +222,25 @@ void check() {
 
 int main(int argc, char** argv) {
 
+	if (argc < 2) {
+		std::cout << "Usage WalletMiner.exe <balance_file>" << std::endl;
+		std::cout << "File must be sorted in order for the binary search to work." << std::endl;
+		return 1;
+	}
+
 	// Check that the built address is right for the private key
 	secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
-	assert(privateKeyToAddress(stringToPrvKey("be63955589062b68320f0a3d5b450551c67bbb5f6e5b34cec57738f3a96316a9"), ctx) == "18pRzZBpMyrfPbcBBQcfVYMXoibm6fhqYs");
+	assert(
+		privateKeyToAddress(
+			stringToPrvKey("be63955589062b68320f0a3d5b450551c67bbb5f6e5b34cec57738f3a96316a9"), ctx)
+			== "18pRzZBpMyrfPbcBBQcfVYMXoibm6fhqYs"
+	);
 	secp256k1_context_destroy(ctx);
 
 	unsigned int _maxThreads = std::thread::hardware_concurrency(); // Concurrent threads
 	std::vector<std::thread> threads;
 	for (unsigned int i = 0; i < _maxThreads; i++) {
-		threads.emplace_back(std::thread{ []() {check(); } });
+		threads.emplace_back(std::thread{ [argv]() {check(argv[1]); } });
 	}
 
 	time_point<system_clock, milliseconds> lastUpdate = time_point_cast<milliseconds>(system_clock::now());

@@ -3,6 +3,7 @@ import os
 
 def build_index(filename, sort_col):
     print("Generating index...")
+    max_length = 0
     index = []
     f = open(filename)
     while True:
@@ -10,21 +11,26 @@ def build_index(filename, sort_col):
         line = f.readline()
         if not line:
             break
-        length = len(line)
+        length = len(line) - 1 # remove \n from the size
+        max_length = length if length > max_length else max_length
         col = line.split('\t')[sort_col].strip()
         index.append((col, offset, length))
     f.close()
     index.sort()
-    return index
+    return (max_length, index)
 
 def print_sorted(filename, newFilename, col_sort):
-    index = build_index(filename, col_sort)
+    max_length, index = build_index(filename, col_sort)
     f = open(filename)
     f2 = open(newFilename, 'w')
     print("Writing file...")
-    for col, offset, length in index:
+    for _, offset, length in index:
         f.seek(offset)
-        f2.write(f.read(length).rstrip('\n')+"\n")
+        text = f.read(length).rstrip('\n')
+        sep = text.split("\t")
+        if not sep[1].isnumeric() : continue
+        text = sep[0] + "\t{:0{prec}d}".format(int(sep[1]), prec=len(sep[1]) + max_length - len(text))
+        f2.write(text + "\n")
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

@@ -103,7 +103,7 @@ std::string prvKeyToString(std::vector<unsigned char> const& prvKey) {
 // Generates a random 32 bytes private key
 // If trueGenerator = true, the key will be max 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140
 // Which is 4.32420386565660042066383539350 × 10 ^ 29 less keys
-std::vector<unsigned char> generateRandomPrvKey(bool trueGenerator = true) {
+std::vector<unsigned char> generateRandomPrvKey(bool trueGenerator = false) {
 	std::vector<unsigned char> prvKey;
 	std::random_device dev;
 	std::mt19937 rng(dev());
@@ -146,60 +146,53 @@ void incrementPrvKey(std::vector<unsigned char>& prvKey) {
 	}
 }
 
-// Goes back until it gets to start of line
-// Reads it and returns if read = true
-std::optional<std::string> findNextValidData(std::istream& is, bool read = false) {
-	std::streamsize curr = is.tellg();
-	std::streamsize i = 0;
-	while (true) {
-		i++;
-		std::streamsize seekVal = curr - i;
-		if (seekVal <= 0) break;
-		is.seekg(seekVal, std::ios::beg);
-		char letter;
-		is.get(letter);
-		if (letter == '\n') {
-			break;
-		}
-	}
-	if (read) {
-		std::string line;
-		std::getline(is, line);
-		return line;
-	}
-	return std::nullopt;
+// Return the size of a line (same for all lines)
+std::streamsize getLineSize(std::istream& is) {
+	is.seekg(0, std::ios::beg);
+	std::string t;
+	std::getline(is, t);
+	return is.tellg();	
+}
+
+// Return the size of a file
+std::streamsize getFileSize(std::istream& is) {
+	is.seekg(0, std::ios::end);
+	return is.tellg();
+}
+
+// Read a line and go back to the beggining
+std::string readLine(std::istream& is, std::streamsize pos) {
+	std::string str;
+	is.seekg(pos, std::ios::beg);
+	std::getline(is, str);
+	is.seekg(pos, std::ios::beg);
+	return str;
 }
 
 // Performs a binary search
 // File must be sorted in order for this to work
-std::optional<std::string> fileSearch(std::istream& is, std::string const& pubkey) {
-	is.seekg(0, std::ios::end);
-	findNextValidData(is, false);
+std::optional<std::string> fileSearch(std::streamsize size, std::streamsize lineSize, std::istream& is, std::string const& pubkey) {
 	std::streamsize start = 0;
-	std::streamsize end = is.tellg();
-	is.seekg(0, std::ios::beg);
+	std::streamsize end = size - lineSize;
 	while (start <= end) {
 		std::streamsize pos = (start + end) / 2;
-		is.seekg(pos, std::ios::beg);
-		auto opt = findNextValidData(is, true);
-		std::streamsize newPos = is.tellg();
-		std::string& key = *opt;
-		auto tabPos = key.find('\t');
-		std::string realKey = key.substr(0, tabPos);
+		pos = (pos / lineSize) * lineSize;
+		std::string line = readLine(is, pos);
+		auto tabPos = line.find('\t');
+		std::string realKey = line.substr(0, tabPos);
 		if (realKey == pubkey) {
-			std::string newStr = key.substr(tabPos + 1);
+			std::string newStr = line.substr(tabPos + 1);
 			if (!newStr.empty() && *newStr.rbegin() == '\r') {
 				newStr.erase(newStr.length() - 1, 1);
 			}
+			newStr.erase(0, std::min(newStr.find_first_not_of('0'), newStr.size() - 1));
 			return newStr;
 		}
 		else if (realKey < pubkey) {
-			start = newPos;
+			start = pos + lineSize;
 		}
 		else {
-			is.seekg(newPos - key.size() - 1 - 1, std::ios::beg);
-			findNextValidData(is, false);
-			end = is.tellg();
+			end = pos - lineSize;
 		}
 	}
 	return std::nullopt;
@@ -219,7 +212,7 @@ double getSpeed(T elapsedTime, U processedNumber) {
 	return processedNumber / ratio;
 }
 
-void check(const char* path) {
+void check(const char* path, std::streamsize size, std::streamsize lineSize) {
 	std::ifstream f{ path, std::ifstream::binary };
 	if (f.fail()) {
 		throw std::runtime_error{ "Error opening file." };
@@ -228,9 +221,10 @@ void check(const char* path) {
 	while (true) {
 		auto prv = generateRandomPrvKey();
 		auto pub = privateKeyToAddress(prv, ctx);
-		auto res = fileSearch(f, pub);
+		auto res = fileSearch(size, lineSize, f, "14YK4mzJGo5NKkNnmVJeuEAQftLt795Gec");
 		done++;
 		if (res) {
+			std::cout << "jjjjjjjjj" << std::endl;
 			// Really unlikely to happen, no need to sync =D
 			std::cout << "-------------------- NON NULL BALANCE FOUND --------------------" << std::endl;
 			std::ofstream os{ std::filesystem::current_path().string() + "/walletminer.balance." + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ".txt", std::ofstream::app};
@@ -261,10 +255,19 @@ int main(int argc, char** argv) {
 	);
 	secp256k1_context_destroy(ctx);
 
+	std::ifstream f{ argv[1], std::ifstream::binary };
+	if (f.fail()) {
+		throw std::runtime_error{ "Error opening file." };
+	}
+
+	auto size = getFileSize(f);
+	auto lineSize = getLineSize(f);
+
+
 	unsigned int _maxThreads = std::thread::hardware_concurrency(); // Concurrent threads
 	std::vector<std::thread> threads;
 	for (unsigned int i = 0; i < _maxThreads; i++) {
-		threads.emplace_back(std::thread{ [argv]() {check(argv[1]); } });
+		threads.emplace_back(std::thread{ [argv, size, lineSize]() {check(argv[1], size, lineSize); } });
 	}
 
 	time_point<system_clock, milliseconds> lastUpdate = time_point_cast<milliseconds>(system_clock::now());

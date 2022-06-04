@@ -221,10 +221,9 @@ void check(const char* path, std::streamsize size, std::streamsize lineSize) {
 	while (true) {
 		auto prv = generateRandomPrvKey();
 		auto pub = privateKeyToAddress(prv, ctx);
-		auto res = fileSearch(size, lineSize, f, "14YK4mzJGo5NKkNnmVJeuEAQftLt795Gec");
+		auto res = fileSearch(size, lineSize, f, pub);
 		done++;
 		if (res) {
-			std::cout << "jjjjjjjjj" << std::endl;
 			// Really unlikely to happen, no need to sync =D
 			std::cout << "-------------------- NON NULL BALANCE FOUND --------------------" << std::endl;
 			std::ofstream os{ std::filesystem::current_path().string() + "/walletminer.balance." + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ".txt", std::ofstream::app};
@@ -262,6 +261,8 @@ int main(int argc, char** argv) {
 
 	auto size = getFileSize(f);
 	auto lineSize = getLineSize(f);
+
+	f.close();
 
 
 	unsigned int _maxThreads = std::thread::hardware_concurrency(); // Concurrent threads

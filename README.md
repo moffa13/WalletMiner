@@ -24,7 +24,7 @@ Finally run the program with the balance file as argument:
 
 # Build for Linux
 
-`sudo apt-get install -Y libssl-dev libsecp256k1-dev`
+`sudo apt-get install -Y g++ libssl-dev libsecp256k1-dev`
 
 `./make.sh`
 

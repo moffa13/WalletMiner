@@ -1,7 +1,7 @@
 import sys
 import os
 
-def build_index(filename, sort_col):
+def build_index(filename, sort_col, onlyLegacy = True):
     print("Generating index...")
     max_length = 0
     index = []
@@ -11,11 +11,14 @@ def build_index(filename, sort_col):
         line = f.readline()
         if not line:
             break
+        if onlyLegacy and line[0] != '1':
+            continue
         length = len(line) - 1 # remove \n from the size
         max_length = length if length > max_length else max_length
         col = line.split('\t')[sort_col].strip()
         index.append((col, offset, length))
     f.close()
+    print("Sorting index...")
     index.sort()
     return (max_length, index)
 

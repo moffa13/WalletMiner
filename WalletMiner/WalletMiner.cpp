@@ -19,7 +19,9 @@
 
 using namespace std::chrono;
 
+static constexpr size_t writeEveryXKeys = 1'000'000;
 static std::atomic<size_t> done;
+static std::atomic<size_t> doneStats;
 
 static unsigned char max[32] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x40 };
@@ -223,6 +225,7 @@ void check(const char* path, std::streamsize size, std::streamsize lineSize) {
 		auto pub = privateKeyToAddress(prv, ctx);
 		auto res = fileSearch(size, lineSize, f, pub);
 		done++;
+		doneStats++;
 		if (res) {
 			// Really unlikely to happen, no need to sync =D
 			std::cout << "-------------------- NON NULL BALANCE FOUND --------------------" << std::endl;
@@ -236,6 +239,36 @@ void check(const char* path, std::streamsize size, std::streamsize lineSize) {
 	f.close();
 }
 
+void writeStats() {
+	if(doneStats > writeEveryXKeys){
+		std::string end = " tested keys";
+		std::string filename = std::filesystem::current_path().string() + "/walletminer.stats.txt";
+		{
+			std::fstream statsFile{ filename, std::fstream::in | std::fstream::out | std::fstream::app };
+		}
+		std::fstream statsFile{ filename, std::fstream::in | std::fstream::out};
+		if (statsFile.fail()) {
+			return;
+		}
+
+		std::string line;
+		std::getline(statsFile, line);
+		statsFile.clear(); // Clear failbit
+
+		const char* digits = "0123456789";
+		std::size_t firstPos = line.find_first_of(digits);
+		if (firstPos != std::string::npos) {
+			std::size_t lastPos = line.find_first_not_of(digits);
+			doneStats += std::atoi(line.substr(firstPos, lastPos - firstPos).c_str());
+		}
+
+		statsFile.seekg(0, std::ios::beg);
+		statsFile << (std::to_string(doneStats) + end);
+
+		statsFile.close();
+		doneStats = 0;
+	}
+}
 
 int main(int argc, char** argv) {
 
@@ -277,6 +310,7 @@ int main(int argc, char** argv) {
 		auto elapsedTime = getElapsedTime(lastUpdate);
 		lastUpdate = time_point_cast<milliseconds>(system_clock::now());
 		auto speed = getSpeed(elapsedTime, done.load());
+		writeStats();
 		done = 0;
 		std::cout << "\r" << speed << " keys/s             " << std::flush;
 	}

@@ -38,7 +38,7 @@ Finally run the program with the balance file as argument:
 brew tap cuber/homebrew-libsecp256k1
 brew install libsecp256k1
 brew install openssl
-g++ -I"./third-party/openssl/include" -I"./third-party/secp256k1/include" -L"/opt/homebrew/lib" -L"/opt/homebrew/opt/openssl/lib" -pthread --std="c++17" "./WalletMiner/Source.cpp" -lsecp256k1 -lcrypto -lssl -o ./WMiner
+g++ -I"./third-party/openssl/include" -I"./third-party/secp256k1/include" -L"/opt/homebrew/lib" -L"/opt/homebrew/opt/openssl/lib" -pthread --std="c++17" "./WalletMiner/WalletMiner.cpp" -lsecp256k1 -lcrypto -lssl -o ./WMiner
 ```
 
 Finally run the program with the balance file as argument:

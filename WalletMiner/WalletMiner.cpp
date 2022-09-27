@@ -104,7 +104,7 @@ std::string prvKeyToString(std::vector<unsigned char> const& prvKey) {
 
 // Generates a random 32 bytes private key
 // If trueGenerator = true, the key will be max 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140
-// Which is 4.32420386565660042066383539350 × 10 ^ 29 less keys
+// Which is 4.32420386565660042066383539350 ï¿½ 10 ^ 29 less keys
 std::vector<unsigned char> generateRandomPrvKey(bool trueGenerator = false) {
 	std::vector<unsigned char> prvKey;
 	std::random_device dev;
@@ -289,7 +289,8 @@ int main(int argc, char** argv) {
 
 	std::ifstream f{ argv[1], std::ifstream::binary };
 	if (f.fail()) {
-		throw std::runtime_error{ "Error opening file." };
+		std::cout << "Error opening file." << std::endl;
+		exit(1);
 	}
 
 	auto size = getFileSize(f);
@@ -301,7 +302,17 @@ int main(int argc, char** argv) {
 	unsigned int _maxThreads = std::thread::hardware_concurrency(); // Concurrent threads
 	std::vector<std::thread> threads;
 	for (unsigned int i = 0; i < _maxThreads; i++) {
-		threads.emplace_back(std::thread{ [argv, size, lineSize]() {check(argv[1], size, lineSize); } });
+		threads.emplace_back(
+			std::thread{ [argv, size, lineSize]() {
+				try {
+					check(argv[1], size, lineSize);
+				}
+				catch (std::exception e) {
+					std::cout << e.what() << std::endl;
+					exit(1);
+				}
+			}} 
+		);
 	}
 
 	time_point<system_clock, milliseconds> lastUpdate = time_point_cast<milliseconds>(system_clock::now());

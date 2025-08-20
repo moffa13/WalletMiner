@@ -12,11 +12,11 @@ This is very unlikely to work.
 
 The openssl & libsecp256k1 are already in the project, the dll files are in x64\Debug
 
-Download the database dump containing the balances of all the used addresses.
+Download and extract the database dump containing the balances of all the used addresses.
 
 This can be found here: https://gz.blockchair.com/bitcoin/addresses/
 
-And here: https://privatekeyfinder.io/download/
+And here: https://privatekeyfinder.io/download/ (blockchair_bitcoin_addresses_latest.tsv.gz)
 
 Download the official bitcoin-core/secp256k1 library and build it.
 
@@ -49,7 +49,7 @@ Finally run the program with the balance file as argument:
 
 # Build for Linux
 
-`sudo apt-get install -Y g++ libssl-dev libsecp256k1-dev`
+`sudo apt-get install -y g++ libssl-dev libsecp256k1-dev`
 
 `./make.sh`
 

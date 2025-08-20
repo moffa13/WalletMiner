@@ -8,7 +8,7 @@
 	'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
 	'y', 'z' };
 
-std::string base58Encode(const std::array<uint8_t, 25>& data, const uint8_t* mapping)
+std::array<uint8_t, 36> base58Encode(const std::array<uint8_t, 25>& data, const uint8_t* mapping)
 {
 	std::vector<uint8_t> digits((data.size() * 138 / 100) + 1);
 	size_t digitslen = 1;
@@ -24,14 +24,17 @@ std::string base58Encode(const std::array<uint8_t, 25>& data, const uint8_t* map
 		for (; carry; carry /= 58)
 			digits[digitslen++] = static_cast<uint8_t>(carry % 58);
 	}
-	std::string result;
+	std::array<uint8_t, 36> result{};
+	int curr = 0;
 	for (size_t i = 0; i < (data.size() - 1) && !data[i]; i++)
-		result.push_back(mapping[0]);
+		result[curr++] = mapping[0];
 	for (size_t i = 0; i < digitslen; i++)
-		result.push_back(mapping[digits[digitslen - 1 - i]]);
+		result[curr++] = mapping[digits[digitslen - 1 - i]];
+
+	result[curr] = '\0';
+
 	return result;
 }
-
 
 
 std::array<uint8_t, 25> base58Decode(const std::string& str) {

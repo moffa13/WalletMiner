@@ -29,9 +29,11 @@ static std::atomic<size_t> done;
 static std::atomic<size_t> doneStats;
 
 // Struct to be able to make a hash out of pub addr
+// Uses FNV-1a
+// Stats showed (bucket filling): Min=0 Max=10 Avg=0.852572
 struct AddressHash {
 	std::size_t operator()(std::array<uint8_t, 36> const& a) const noexcept {
-		std::size_t h = 1469598103934665603ull;
+		std::size_t h = 14695981039346656037ull;
 		for (uint8_t c : a) {
 			if (c == '\0') break;
 			h ^= c;
@@ -51,7 +53,24 @@ struct AddressEq {
 // The hash map containing all the pub addresses in base58
 static std::unordered_map<std::array<uint8_t, 36>, uint64_t, AddressHash, AddressEq> addresses;
 
+// Used to check if the hash does its job (debug purposes)
+void testDistribution() {
+	size_t buckets = addresses.bucket_count();
+	std::vector<size_t> counts(buckets, 0);
 
+	for (auto& kv : addresses) {
+		size_t b = addresses.bucket(kv.first);
+		counts[b]++;
+	}
+
+	size_t minc = *std::min_element(counts.begin(), counts.end());
+	size_t maxc = *std::max_element(counts.begin(), counts.end());
+	double avg = double(addresses.size()) / buckets;
+
+	std::cout << "Min=" << minc << " Max=" << maxc << " Avg=" << avg << std::endl;
+}
+
+// Max bitcoin private key value cut in bytes
 const std::array<uint8_t, 32> SECP256K1_N = {
 	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
 	0xFF,0xFF,0xFF,0xFF,0xFE,0xBA,0xAE,0xDC,
@@ -60,9 +79,10 @@ const std::array<uint8_t, 32> SECP256K1_N = {
 };
 
 
-// Loads all addresses with their balance into a map
+// Load all addresses from a file with their balance into an hash map
 // Format is P2PKH
 // Will only load keys starting with 1 or 3
+// Other keys such as bc1...., s-..... will be ignored
 void loadValidAddresses(const char* path){
 	std::cout << "Loading keys..." << std::endl;
 	std::ifstream f{ path };
@@ -104,13 +124,9 @@ void loadValidAddresses(const char* path){
 
 
 // check if addr is in addresses
-inline std::optional<uint64_t> checkAddr(const std::string& addr){
+inline std::optional<uint64_t> checkAddr(std::array<uint8_t, 36> const& addr){
 
-	std::array<uint8_t, 36> key{0};
-	std::strncpy(reinterpret_cast<char*>(key.data()), addr.c_str(), 35);
-	key.back() = '\0';
-
-	auto it = addresses.find(key);
+	auto it = addresses.find(addr);
 	if(it != addresses.end()){
 		return it->second;
 	}
@@ -125,8 +141,8 @@ inline std::array<uint8_t, 32> sha256(const uint8_t* data, size_t len) {
 }
 
 // Return a public key in the compressed form
-// Key is base58 encoded
-std::string privateKeyToAddress(std::array<uint8_t, 32> const& prvkey, secp256k1_context* ctx) {
+// Key is base58 encoded and in the form of a 36 byte null terminated array
+std::array<uint8_t, 36> privateKeyToAddress(std::array<uint8_t, 32> const& prvkey, secp256k1_context* ctx) {
 	secp256k1_pubkey pubkey;
 
 	if (secp256k1_ec_pubkey_create(ctx, &pubkey, prvkey.data()) == 0) {
@@ -160,16 +176,15 @@ std::string privateKeyToAddress(std::array<uint8_t, 32> const& prvkey, secp256k1
 
 
 // 64 chars hex string to 32 bytes private key
-std::vector<uint8_t > stringToPrvKey(std::string const& str) {
+std::array<uint8_t, 32> stringToPrvKey(std::string const& str) {
 	static const std::string values{ "0123456789abcdef" };
-	std::vector<uint8_t > realHash;
-	realHash.reserve(32);
+	std::array<uint8_t, 32> realHash{};
 	int i = 0;
 	for (std::string::const_iterator it{ str.begin() }; it != str.end();)
 	{
 		size_t f1 = values.find(*it++) * 16;
 		size_t f2 = values.find(*it++);
-		realHash.push_back(static_cast<uint8_t >(f1 + f2));
+		realHash[i] = static_cast<uint8_t>(f1 + f2);
 		i++;
 	}
 	return realHash;
@@ -231,19 +246,30 @@ double getSpeed(T elapsedTime, U processedNumber) {
 	return processedNumber / ratio;
 }
 
+std::array<uint8_t, 36> strToArr(std::string const& addr) {
+	std::array<uint8_t, 36> key{ 0 };
+	std::strncpy(reinterpret_cast<char*>(key.data()), addr.c_str(), 35);
+	key.back() = '\0';
+	return key;
+}
+std::string arrToStr(std::array<uint8_t, 36> const& addr) {
+	return std::string(reinterpret_cast<const char*>(addr.data()));
+}
+
+
 void check(const char* path) {
 	secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 	while (true) {
-		auto prv = generateRandomPrvKey(true);
-		auto pub = privateKeyToAddress(prv, ctx);
-		auto res = checkAddr(pub);
+		auto prv = generateRandomPrvKey(true); // Gen a valid rnd prv key
+		auto pub = privateKeyToAddress(prv, ctx); // Extract the pub
+		auto res = checkAddr(pub); // Check if pub is found in the addr directory
 		done++;
 		doneStats++;
 		if (res) {
 			// Really unlikely to happen, no need to sync =D
 			std::cout << "-------------------- NON NULL BALANCE FOUND --------------------" << std::endl;
 			std::ofstream os{ std::filesystem::current_path().string() + "/walletminer.balance." + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ".txt", std::ofstream::app};
-			std::string addrBal{ prvKeyToString(prv) + " => [" + pub + "]" + ", BALANCE: " + std::to_string(*res) + "sat\n"};
+			std::string addrBal{ prvKeyToString(prv) + " => [" + arrToStr(pub) + "]" + ", BALANCE: " + std::to_string(*res) + "sat\n"};
 			os.write(addrBal.c_str(), addrBal.size());
 			os.close();
 		}
@@ -286,20 +312,26 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-
 	// Check that the built address is right for the private key
 	secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 
 	assert(
 		privateKeyToAddress(
 			stringToPrvKey("be63955589062b68320f0a3d5b450551c67bbb5f6e5b34cec57738f3a96316a9"), ctx)
-			== "1Dai8FBumerEYMzijW7hfMgD45HowqYzVP"
+			== strToArr("1Dai8FBumerEYMzijW7hfMgD45HowqYzVP")
 	);
+
+	assert(arrToStr(strToArr("1LruNZjwamWJXThX2Y8C2d47QqhAkkc5os")) == "1LruNZjwamWJXThX2Y8C2d47QqhAkkc5os");
 
 	secp256k1_context_destroy(ctx);
 
 	try {
 		loadValidAddresses(argv[1]);
+#ifndef NDEBUG
+		testDistribution();
+#endif // DEBUG
+
+
 	}
 	catch (const std::exception& e) {
 		std::cout << "Error loading file" << std::endl;
@@ -308,7 +340,7 @@ int main(int argc, char** argv) {
 	}
 
 	// Using a random pub key in the file to see if it finds it in addresses
-	assert(checkAddr("1LruNZjwamWJXThX2Y8C2d47QqhAkkc5os"));
+	assert(checkAddr(strToArr("1LruNZjwamWJXThX2Y8C2d47QqhAkkc5os")).has_value());
 	
 
 	unsigned int _maxThreads = std::thread::hardware_concurrency(); // Concurrent threads

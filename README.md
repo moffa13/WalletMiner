@@ -45,7 +45,7 @@ or download a compiled version here: https://slproweb.com/products/Win32OpenSSL.
 
 Finally run the program with the balance file as argument:
 
-`WalletMiner.exe M:\blockchair_bitcoin_addresses_latest_sorted.tsv`
+`WalletMiner.exe M:\blockchair_bitcoin_addresses_latest.tsv`
 
 # Build for Linux
 
@@ -55,7 +55,7 @@ Finally run the program with the balance file as argument:
 
 Finally run the program with the balance file as argument:
 
-`./WMiner /home/blockchair_bitcoin_addresses_latest_sorted.tsv`
+`./WMiner /home/blockchair_bitcoin_addresses_latest.tsv`
 
 # Build for macOS
 
@@ -68,4 +68,4 @@ g++ -I"./third-party/openssl/include" -I"./third-party/secp256k1/include" -L"/op
 
 Finally run the program with the balance file as argument:
 
-`./WMiner /Users/x/Desktop/blockchair_bitcoin_addresses_latest_sorted.tsv`
+`./WMiner /Users/x/Desktop/blockchair_bitcoin_addresses_latest.tsv`

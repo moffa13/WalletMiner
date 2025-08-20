@@ -258,7 +258,7 @@ std::string arrToStr(std::array<uint8_t, 36> const& addr) {
 }
 
 
-void check(const char* path) {
+void check() {
 	secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 	while (true) {
 		auto prv = generateRandomPrvKey(true); // Gen a valid rnd prv key
@@ -316,13 +316,26 @@ int main(int argc, char** argv) {
 	// Check that the built address is right for the private key
 	secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
 
+	// Check that prv => pub function gives the right pub key
 	assert(
 		privateKeyToAddress(
 			stringToPrvKey("be63955589062b68320f0a3d5b450551c67bbb5f6e5b34cec57738f3a96316a9"), ctx)
-			== strToArr("1Dai8FBumerEYMzijW7hfMgD45HowqYzVP")
+		== strToArr("1Dai8FBumerEYMzijW7hfMgD45HowqYzVP")
 	);
 
+	// Check that a valid prv key is considered valid by the system
+	assert(
+		checkValidPrvKey(stringToPrvKey("be63955589062b68320f0a3d5b450551c67bbb5f6e5b34cec57738f3a96316a9"))
+	);
+
+
+	// Check that conversions work
 	assert(arrToStr(strToArr("1LruNZjwamWJXThX2Y8C2d47QqhAkkc5os")) == "1LruNZjwamWJXThX2Y8C2d47QqhAkkc5os");
+	assert(
+		prvKeyToString(
+			stringToPrvKey("be63955589062b68320f0a3d5b450551c67bbb5f6e5b34cec57738f3a96316a9")
+		) == "be63955589062b68320f0a3d5b450551c67bbb5f6e5b34cec57738f3a96316a9"
+	);
 
 	secp256k1_context_destroy(ctx);
 
@@ -348,9 +361,9 @@ int main(int argc, char** argv) {
 	std::vector<std::thread> threads;
 	for (unsigned int i = 0; i < _maxThreads; i++) {
 		threads.emplace_back(
-			std::thread{ [argv]() {
+			std::thread{ []() {
 				try {
-					check(argv[1]);
+					check();
 				}
 				catch (const std::exception& e) {
 					std::cout << e.what() << std::endl;

@@ -263,6 +263,7 @@ EXPORTS
     ASN1_item_sign_ctx
     ASN1_item_sign_ex
     ASN1_item_unpack
+    ASN1_item_unpack_ex
     ASN1_item_verify
     ASN1_item_verify_ctx
     ASN1_item_verify_ex
@@ -295,10 +296,12 @@ EXPORTS
     ASYNC_block_pause
     ASYNC_cleanup_thread
     ASYNC_get_current_job
+    ASYNC_get_mem_functions
     ASYNC_get_wait_ctx
     ASYNC_init_thread
     ASYNC_is_capable
     ASYNC_pause_job
+    ASYNC_set_mem_functions
     ASYNC_start_job
     ASYNC_unblock_pause
     AUTHORITY_INFO_ACCESS_free
@@ -326,6 +329,8 @@ EXPORTS
     BIO_ADDRINFO_protocol
     BIO_ADDRINFO_socktype
     BIO_ADDR_clear
+    BIO_ADDR_copy
+    BIO_ADDR_dup
     BIO_ADDR_family
     BIO_ADDR_free
     BIO_ADDR_hostname_string
@@ -364,8 +369,10 @@ EXPORTS
     BIO_dump_indent_cb
     BIO_dump_indent_fp
     BIO_dup_chain
+    BIO_err_is_non_fatal
     BIO_f_asn1
     BIO_f_base64
+    BIO_f_brotli
     BIO_f_buffer
     BIO_f_cipher
     BIO_f_linebuffer
@@ -375,6 +382,8 @@ EXPORTS
     BIO_f_prefix
     BIO_f_readbuffer
     BIO_f_reliable
+    BIO_f_zlib
+    BIO_f_zstd
     BIO_fd_non_fatal_error
     BIO_fd_should_retry
     BIO_find_type
@@ -393,7 +402,9 @@ EXPORTS
     BIO_get_port
     BIO_get_retry_BIO
     BIO_get_retry_reason
+    BIO_get_rpoll_descriptor
     BIO_get_shutdown
+    BIO_get_wpoll_descriptor
     BIO_gethostbyname
     BIO_gets
     BIO_hex_string
@@ -411,6 +422,8 @@ EXPORTS
     BIO_meth_get_puts
     BIO_meth_get_read
     BIO_meth_get_read_ex
+    BIO_meth_get_recvmmsg
+    BIO_meth_get_sendmmsg
     BIO_meth_get_write
     BIO_meth_get_write_ex
     BIO_meth_new
@@ -422,6 +435,8 @@ EXPORTS
     BIO_meth_set_puts
     BIO_meth_set_read
     BIO_meth_set_read_ex
+    BIO_meth_set_recvmmsg
+    BIO_meth_set_sendmmsg
     BIO_meth_set_write
     BIO_meth_set_write_ex
     BIO_method_name
@@ -431,6 +446,7 @@ EXPORTS
     BIO_new_NDEF
     BIO_new_PKCS7
     BIO_new_accept
+    BIO_new_bio_dgram_pair
     BIO_new_bio_pair
     BIO_new_connect
     BIO_new_dgram
@@ -456,11 +472,14 @@ EXPORTS
     BIO_puts
     BIO_read
     BIO_read_ex
+    BIO_recvmmsg
     BIO_s_accept
     BIO_s_bio
     BIO_s_connect
     BIO_s_core
     BIO_s_datagram
+    BIO_s_dgram_mem
+    BIO_s_dgram_pair
     BIO_s_fd
     BIO_s_file
     BIO_s_log
@@ -468,6 +487,7 @@ EXPORTS
     BIO_s_null
     BIO_s_secmem
     BIO_s_socket
+    BIO_sendmmsg
     BIO_set_callback
     BIO_set_callback_arg
     BIO_set_callback_ex
@@ -559,6 +579,7 @@ EXPORTS
     BN_abs_is_word
     BN_add
     BN_add_word
+    BN_are_coprime
     BN_asc2bn
     BN_bin2bn
     BN_bn2bin
@@ -681,6 +702,12 @@ EXPORTS
     BN_set_negative
     BN_set_params
     BN_set_word
+    BN_signed_bin2bn
+    BN_signed_bn2bin
+    BN_signed_bn2lebin
+    BN_signed_bn2native
+    BN_signed_lebin2bn
+    BN_signed_native2bn
     BN_sqr
     BN_sub
     BN_sub_word
@@ -733,6 +760,9 @@ EXPORTS
     CMS_EncryptedData_set1_key
     CMS_EnvelopedData_create
     CMS_EnvelopedData_create_ex
+    CMS_EnvelopedData_decrypt
+    CMS_EnvelopedData_dup
+    CMS_EnvelopedData_it
     CMS_ReceiptRequest_create0
     CMS_ReceiptRequest_create0_ex
     CMS_ReceiptRequest_free
@@ -762,7 +792,10 @@ EXPORTS
     CMS_RecipientInfo_set0_pkey
     CMS_RecipientInfo_type
     CMS_SharedInfo_encode
+    CMS_SignedData_free
     CMS_SignedData_init
+    CMS_SignedData_new
+    CMS_SignedData_verify
     CMS_SignerInfo_cert_cmp
     CMS_SignerInfo_get0_algs
     CMS_SignerInfo_get0_md_ctx
@@ -805,6 +838,7 @@ EXPORTS
     CMS_encrypt
     CMS_encrypt_ex
     CMS_final
+    CMS_final_digest
     CMS_get0_RecipientInfos
     CMS_get0_SignerInfos
     CMS_get0_content
@@ -849,11 +883,16 @@ EXPORTS
     COMP_CTX_get_method
     COMP_CTX_get_type
     COMP_CTX_new
+    COMP_brotli
+    COMP_brotli_oneshot
     COMP_compress_block
     COMP_expand_block
     COMP_get_name
     COMP_get_type
     COMP_zlib
+    COMP_zlib_oneshot
+    COMP_zstd
+    COMP_zstd_oneshot
     CONF_dump_bio
     CONF_dump_fp
     CONF_free
@@ -901,10 +940,15 @@ EXPORTS
     CRYPTO_THREAD_set_local
     CRYPTO_THREAD_unlock
     CRYPTO_THREAD_write_lock
+    CRYPTO_aligned_alloc
     CRYPTO_alloc_ex_data
     CRYPTO_atomic_add
+    CRYPTO_atomic_add64
+    CRYPTO_atomic_and
     CRYPTO_atomic_load
+    CRYPTO_atomic_load_int
     CRYPTO_atomic_or
+    CRYPTO_atomic_store
     CRYPTO_cbc128_decrypt
     CRYPTO_cbc128_encrypt
     CRYPTO_ccm128_aad
@@ -1124,6 +1168,7 @@ EXPORTS
     DISPLAYTEXT_free
     DISPLAYTEXT_it
     DISPLAYTEXT_new
+    DIST_POINT_NAME_dup
     DIST_POINT_NAME_free
     DIST_POINT_NAME_it
     DIST_POINT_NAME_new
@@ -1298,6 +1343,7 @@ EXPORTS
     EC_GROUP_set_generator
     EC_GROUP_set_point_conversion_form
     EC_GROUP_set_seed
+    EC_GROUP_to_params
     EC_KEY_METHOD_free
     EC_KEY_METHOD_get_compute_key
     EC_KEY_METHOD_get_init
@@ -1523,6 +1569,7 @@ EXPORTS
     ERR_add_error_vdata
     ERR_clear_error
     ERR_clear_last_mark
+    ERR_count_to_mark
     ERR_error_string
     ERR_error_string_n
     ERR_func_error_string
@@ -1577,6 +1624,7 @@ EXPORTS
     ERR_peek_last_error_func
     ERR_peek_last_error_line
     ERR_peek_last_error_line_data
+    ERR_pop
     ERR_pop_to_mark
     ERR_print_errors
     ERR_print_errors_cb
@@ -1624,9 +1672,12 @@ EXPORTS
     EVP_CIPHER_CTX_clear_flags
     EVP_CIPHER_CTX_copy
     EVP_CIPHER_CTX_ctrl
+    EVP_CIPHER_CTX_dup
     EVP_CIPHER_CTX_free
     EVP_CIPHER_CTX_get0_cipher
     EVP_CIPHER_CTX_get1_cipher
+    EVP_CIPHER_CTX_get_algor
+    EVP_CIPHER_CTX_get_algor_params
     EVP_CIPHER_CTX_get_app_data
     EVP_CIPHER_CTX_get_block_size
     EVP_CIPHER_CTX_get_cipher_data
@@ -1646,6 +1697,7 @@ EXPORTS
     EVP_CIPHER_CTX_original_iv
     EVP_CIPHER_CTX_rand_key
     EVP_CIPHER_CTX_reset
+    EVP_CIPHER_CTX_set_algor_params
     EVP_CIPHER_CTX_set_app_data
     EVP_CIPHER_CTX_set_cipher_data
     EVP_CIPHER_CTX_set_flags
@@ -1656,6 +1708,7 @@ EXPORTS
     EVP_CIPHER_CTX_settable_params
     EVP_CIPHER_CTX_test_flags
     EVP_CIPHER_asn1_to_param
+    EVP_CIPHER_can_pipeline
     EVP_CIPHER_do_all
     EVP_CIPHER_do_all_provided
     EVP_CIPHER_do_all_sorted
@@ -1704,8 +1757,13 @@ EXPORTS
     EVP_CipherFinal
     EVP_CipherFinal_ex
     EVP_CipherInit
+    EVP_CipherInit_SKEY
     EVP_CipherInit_ex
     EVP_CipherInit_ex2
+    EVP_CipherPipelineDecryptInit
+    EVP_CipherPipelineEncryptInit
+    EVP_CipherPipelineFinal
+    EVP_CipherPipelineUpdate
     EVP_CipherUpdate
     EVP_DecodeBlock
     EVP_DecodeFinal
@@ -1729,6 +1787,7 @@ EXPORTS
     EVP_DigestSignInit
     EVP_DigestSignInit_ex
     EVP_DigestSignUpdate
+    EVP_DigestSqueeze
     EVP_DigestUpdate
     EVP_DigestVerify
     EVP_DigestVerifyFinal
@@ -1798,6 +1857,7 @@ EXPORTS
     EVP_KEYMGMT_do_all_provided
     EVP_KEYMGMT_fetch
     EVP_KEYMGMT_free
+    EVP_KEYMGMT_gen_gettable_params
     EVP_KEYMGMT_gen_settable_params
     EVP_KEYMGMT_get0_description
     EVP_KEYMGMT_get0_name
@@ -1829,6 +1889,7 @@ EXPORTS
     EVP_MAC_gettable_ctx_params
     EVP_MAC_gettable_params
     EVP_MAC_init
+    EVP_MAC_init_SKEY
     EVP_MAC_is_a
     EVP_MAC_names_do_all
     EVP_MAC_settable_ctx_params
@@ -1838,12 +1899,14 @@ EXPORTS
     EVP_MD_CTX_copy
     EVP_MD_CTX_copy_ex
     EVP_MD_CTX_ctrl
+    EVP_MD_CTX_dup
     EVP_MD_CTX_free
     EVP_MD_CTX_get0_md
     EVP_MD_CTX_get0_md_data
     EVP_MD_CTX_get1_md
     EVP_MD_CTX_get_params
     EVP_MD_CTX_get_pkey_ctx
+    EVP_MD_CTX_get_size_ex
     EVP_MD_CTX_gettable_params
     EVP_MD_CTX_md
     EVP_MD_CTX_new
@@ -1898,6 +1961,7 @@ EXPORTS
     EVP_MD_names_do_all
     EVP_MD_settable_ctx_params
     EVP_MD_up_ref
+    EVP_MD_xof
     EVP_OpenFinal
     EVP_OpenInit
     EVP_PBE_CipherInit
@@ -1931,6 +1995,8 @@ EXPORTS
     EVP_PKEY_CTX_get0_rsa_oaep_label
     EVP_PKEY_CTX_get1_id
     EVP_PKEY_CTX_get1_id_len
+    EVP_PKEY_CTX_get_algor
+    EVP_PKEY_CTX_get_algor_params
     EVP_PKEY_CTX_get_app_data
     EVP_PKEY_CTX_get_cb
     EVP_PKEY_CTX_get_data
@@ -1972,6 +2038,7 @@ EXPORTS
     EVP_PKEY_CTX_set1_rsa_keygen_pubexp
     EVP_PKEY_CTX_set1_scrypt_salt
     EVP_PKEY_CTX_set1_tls1_prf_secret
+    EVP_PKEY_CTX_set_algor_params
     EVP_PKEY_CTX_set_app_data
     EVP_PKEY_CTX_set_cb
     EVP_PKEY_CTX_set_data
@@ -2025,6 +2092,7 @@ EXPORTS
     EVP_PKEY_CTX_set_scrypt_maxmem_bytes
     EVP_PKEY_CTX_set_scrypt_p
     EVP_PKEY_CTX_set_scrypt_r
+    EVP_PKEY_CTX_set_signature
     EVP_PKEY_CTX_set_signature_md
     EVP_PKEY_CTX_set_tls1_prf_md
     EVP_PKEY_CTX_settable_params
@@ -2060,6 +2128,8 @@ EXPORTS
     EVP_PKEY_asn1_set_set_pub_key
     EVP_PKEY_asn1_set_siginf
     EVP_PKEY_assign
+    EVP_PKEY_auth_decapsulate_init
+    EVP_PKEY_auth_encapsulate_init
     EVP_PKEY_can_sign
     EVP_PKEY_check
     EVP_PKEY_cmp
@@ -2230,6 +2300,10 @@ EXPORTS
     EVP_PKEY_sign
     EVP_PKEY_sign_init
     EVP_PKEY_sign_init_ex
+    EVP_PKEY_sign_init_ex2
+    EVP_PKEY_sign_message_final
+    EVP_PKEY_sign_message_init
+    EVP_PKEY_sign_message_update
     EVP_PKEY_todata
     EVP_PKEY_type
     EVP_PKEY_type_names_do_all
@@ -2237,9 +2311,14 @@ EXPORTS
     EVP_PKEY_verify
     EVP_PKEY_verify_init
     EVP_PKEY_verify_init_ex
+    EVP_PKEY_verify_init_ex2
+    EVP_PKEY_verify_message_final
+    EVP_PKEY_verify_message_init
+    EVP_PKEY_verify_message_update
     EVP_PKEY_verify_recover
     EVP_PKEY_verify_recover_init
     EVP_PKEY_verify_recover_init_ex
+    EVP_PKEY_verify_recover_init_ex2
     EVP_Q_digest
     EVP_Q_mac
     EVP_RAND_CTX_free
@@ -2249,6 +2328,7 @@ EXPORTS
     EVP_RAND_CTX_new
     EVP_RAND_CTX_set_params
     EVP_RAND_CTX_settable_params
+    EVP_RAND_CTX_up_ref
     EVP_RAND_do_all_provided
     EVP_RAND_enable_locking
     EVP_RAND_fetch
@@ -2282,6 +2362,29 @@ EXPORTS
     EVP_SIGNATURE_names_do_all
     EVP_SIGNATURE_settable_ctx_params
     EVP_SIGNATURE_up_ref
+    EVP_SKEYMGMT_do_all_provided
+    EVP_SKEYMGMT_fetch
+    EVP_SKEYMGMT_free
+    EVP_SKEYMGMT_get0_description
+    EVP_SKEYMGMT_get0_gen_settable_params
+    EVP_SKEYMGMT_get0_imp_settable_params
+    EVP_SKEYMGMT_get0_name
+    EVP_SKEYMGMT_get0_provider
+    EVP_SKEYMGMT_is_a
+    EVP_SKEYMGMT_names_do_all
+    EVP_SKEYMGMT_up_ref
+    EVP_SKEY_export
+    EVP_SKEY_free
+    EVP_SKEY_generate
+    EVP_SKEY_get0_key_id
+    EVP_SKEY_get0_provider_name
+    EVP_SKEY_get0_raw_key
+    EVP_SKEY_get0_skeymgmt_name
+    EVP_SKEY_import
+    EVP_SKEY_import_raw_key
+    EVP_SKEY_is_a
+    EVP_SKEY_to_provider
+    EVP_SKEY_up_ref
     EVP_SealFinal
     EVP_SealInit
     EVP_SignFinal
@@ -2416,6 +2519,7 @@ EXPORTS
     EVP_des_ofb
     EVP_desx_cbc
     EVP_enc_null
+    EVP_get1_default_properties
     EVP_get_cipherbyname
     EVP_get_digestbyname
     EVP_get_pw_prompt
@@ -2482,6 +2586,7 @@ EXPORTS
     GENERAL_NAME_print
     GENERAL_NAME_set0_othername
     GENERAL_NAME_set0_value
+    GENERAL_NAME_set1_X509_NAME
     GENERAL_SUBTREE_free
     GENERAL_SUBTREE_it
     GENERAL_SUBTREE_new
@@ -2769,6 +2874,7 @@ EXPORTS
     OPENSSL_LH_delete
     OPENSSL_LH_doall
     OPENSSL_LH_doall_arg
+    OPENSSL_LH_doall_arg_thunk
     OPENSSL_LH_error
     OPENSSL_LH_flush
     OPENSSL_LH_free
@@ -2782,6 +2888,7 @@ EXPORTS
     OPENSSL_LH_num_items
     OPENSSL_LH_retrieve
     OPENSSL_LH_set_down_load
+    OPENSSL_LH_set_thunks
     OPENSSL_LH_stats
     OPENSSL_LH_stats_bio
     OPENSSL_LH_strhash
@@ -2830,9 +2937,12 @@ EXPORTS
     OPENSSL_sk_unshift
     OPENSSL_sk_value
     OPENSSL_sk_zero
+    OPENSSL_strcasecmp
     OPENSSL_strlcat
     OPENSSL_strlcpy
+    OPENSSL_strncasecmp
     OPENSSL_strnlen
+    OPENSSL_strtoul
     OPENSSL_thread_stop
     OPENSSL_thread_stop_ex
     OPENSSL_uni2asc
@@ -2843,13 +2953,72 @@ EXPORTS
     OPENSSL_version_minor
     OPENSSL_version_patch
     OPENSSL_version_pre_release
+    OSSL_AA_DIST_POINT_free
+    OSSL_AA_DIST_POINT_it
+    OSSL_AA_DIST_POINT_new
+    OSSL_ALLOWED_ATTRIBUTES_CHOICE_free
+    OSSL_ALLOWED_ATTRIBUTES_CHOICE_it
+    OSSL_ALLOWED_ATTRIBUTES_CHOICE_new
+    OSSL_ALLOWED_ATTRIBUTES_ITEM_free
+    OSSL_ALLOWED_ATTRIBUTES_ITEM_it
+    OSSL_ALLOWED_ATTRIBUTES_ITEM_new
+    OSSL_ALLOWED_ATTRIBUTES_SYNTAX_free
+    OSSL_ALLOWED_ATTRIBUTES_SYNTAX_it
+    OSSL_ALLOWED_ATTRIBUTES_SYNTAX_new
+    OSSL_ATAV_free
+    OSSL_ATAV_it
+    OSSL_ATAV_new
+    OSSL_ATTRIBUTES_SYNTAX_free
+    OSSL_ATTRIBUTES_SYNTAX_it
+    OSSL_ATTRIBUTES_SYNTAX_new
+    OSSL_ATTRIBUTE_DESCRIPTOR_free
+    OSSL_ATTRIBUTE_DESCRIPTOR_it
+    OSSL_ATTRIBUTE_DESCRIPTOR_new
+    OSSL_ATTRIBUTE_MAPPINGS_free
+    OSSL_ATTRIBUTE_MAPPINGS_it
+    OSSL_ATTRIBUTE_MAPPINGS_new
+    OSSL_ATTRIBUTE_MAPPING_free
+    OSSL_ATTRIBUTE_MAPPING_it
+    OSSL_ATTRIBUTE_MAPPING_new
+    OSSL_ATTRIBUTE_TYPE_MAPPING_free
+    OSSL_ATTRIBUTE_TYPE_MAPPING_it
+    OSSL_ATTRIBUTE_TYPE_MAPPING_new
+    OSSL_ATTRIBUTE_VALUE_MAPPING_free
+    OSSL_ATTRIBUTE_VALUE_MAPPING_it
+    OSSL_ATTRIBUTE_VALUE_MAPPING_new
+    OSSL_AUTHORITY_ATTRIBUTE_ID_SYNTAX_free
+    OSSL_AUTHORITY_ATTRIBUTE_ID_SYNTAX_it
+    OSSL_AUTHORITY_ATTRIBUTE_ID_SYNTAX_new
+    OSSL_BASIC_ATTR_CONSTRAINTS_free
+    OSSL_BASIC_ATTR_CONSTRAINTS_it
+    OSSL_BASIC_ATTR_CONSTRAINTS_new
+    OSSL_CMP_ATAVS_free
+    OSSL_CMP_ATAVS_it
+    OSSL_CMP_ATAVS_new
+    OSSL_CMP_ATAV_create
+    OSSL_CMP_ATAV_get0_algId
+    OSSL_CMP_ATAV_get0_type
+    OSSL_CMP_ATAV_get0_value
+    OSSL_CMP_ATAV_get_rsaKeyLen
+    OSSL_CMP_ATAV_new_algId
+    OSSL_CMP_ATAV_new_rsaKeyLen
+    OSSL_CMP_ATAV_push1
+    OSSL_CMP_ATAV_set0
+    OSSL_CMP_CRLSTATUS_create
+    OSSL_CMP_CRLSTATUS_free
+    OSSL_CMP_CRLSTATUS_get0
+    OSSL_CMP_CRLSTATUS_new1
     OSSL_CMP_CTX_build_cert_chain
     OSSL_CMP_CTX_free
+    OSSL_CMP_CTX_get0_geninfo_ITAVs
+    OSSL_CMP_CTX_get0_libctx
     OSSL_CMP_CTX_get0_newCert
     OSSL_CMP_CTX_get0_newPkey
+    OSSL_CMP_CTX_get0_propq
     OSSL_CMP_CTX_get0_statusString
     OSSL_CMP_CTX_get0_trustedStore
     OSSL_CMP_CTX_get0_untrusted
+    OSSL_CMP_CTX_get0_validatedSrvCert
     OSSL_CMP_CTX_get1_caPubs
     OSSL_CMP_CTX_get1_extraCertsIn
     OSSL_CMP_CTX_get1_newChain
@@ -2867,6 +3036,7 @@ EXPORTS
     OSSL_CMP_CTX_push1_subjectAltName
     OSSL_CMP_CTX_reinit
     OSSL_CMP_CTX_reqExtensions_have_SAN
+    OSSL_CMP_CTX_reset_geninfo_ITAVs
     OSSL_CMP_CTX_server_perform
     OSSL_CMP_CTX_set0_newPkey
     OSSL_CMP_CTX_set0_reqExtensions
@@ -2884,6 +3054,7 @@ EXPORTS
     OSSL_CMP_CTX_set1_referenceValue
     OSSL_CMP_CTX_set1_secretValue
     OSSL_CMP_CTX_set1_senderNonce
+    OSSL_CMP_CTX_set1_serialNumber
     OSSL_CMP_CTX_set1_server
     OSSL_CMP_CTX_set1_serverPath
     OSSL_CMP_CTX_set1_srvCert
@@ -2901,22 +3072,39 @@ EXPORTS
     OSSL_CMP_CTX_set_transfer_cb_arg
     OSSL_CMP_CTX_setup_CRM
     OSSL_CMP_CTX_snprint_PKIStatus
+    OSSL_CMP_HDR_get0_geninfo_ITAVs
     OSSL_CMP_HDR_get0_recipNonce
     OSSL_CMP_HDR_get0_transactionID
     OSSL_CMP_ITAV_create
     OSSL_CMP_ITAV_dup
     OSSL_CMP_ITAV_free
+    OSSL_CMP_ITAV_get0_caCerts
+    OSSL_CMP_ITAV_get0_certProfile
+    OSSL_CMP_ITAV_get0_crlStatusList
+    OSSL_CMP_ITAV_get0_crls
+    OSSL_CMP_ITAV_get0_rootCaCert
+    OSSL_CMP_ITAV_get0_rootCaKeyUpdate
     OSSL_CMP_ITAV_get0_type
     OSSL_CMP_ITAV_get0_value
+    OSSL_CMP_ITAV_get1_certReqTemplate
+    OSSL_CMP_ITAV_new0_certProfile
+    OSSL_CMP_ITAV_new0_certReqTemplate
+    OSSL_CMP_ITAV_new0_crlStatusList
+    OSSL_CMP_ITAV_new_caCerts
+    OSSL_CMP_ITAV_new_crls
+    OSSL_CMP_ITAV_new_rootCaCert
+    OSSL_CMP_ITAV_new_rootCaKeyUpdate
     OSSL_CMP_ITAV_push0_stack_item
     OSSL_CMP_ITAV_set0
     OSSL_CMP_MSG_dup
     OSSL_CMP_MSG_free
+    OSSL_CMP_MSG_get0_certreq_publickey
     OSSL_CMP_MSG_get0_header
     OSSL_CMP_MSG_get_bodytype
     OSSL_CMP_MSG_http_perform
     OSSL_CMP_MSG_it
     OSSL_CMP_MSG_read
+    OSSL_CMP_MSG_update_recipNonce
     OSSL_CMP_MSG_update_transactionID
     OSSL_CMP_MSG_write
     OSSL_CMP_PKIHEADER_free
@@ -2931,6 +3119,7 @@ EXPORTS
     OSSL_CMP_SRV_CTX_get0_cmp_ctx
     OSSL_CMP_SRV_CTX_get0_custom_ctx
     OSSL_CMP_SRV_CTX_init
+    OSSL_CMP_SRV_CTX_init_trans
     OSSL_CMP_SRV_CTX_new
     OSSL_CMP_SRV_CTX_set_accept_raverified
     OSSL_CMP_SRV_CTX_set_accept_unprotected
@@ -2942,6 +3131,10 @@ EXPORTS
     OSSL_CMP_exec_GENM_ses
     OSSL_CMP_exec_RR_ses
     OSSL_CMP_exec_certreq
+    OSSL_CMP_get1_caCerts
+    OSSL_CMP_get1_certReqTemplate
+    OSSL_CMP_get1_crlUpdate
+    OSSL_CMP_get1_rootCaKeyUpdate
     OSSL_CMP_log_close
     OSSL_CMP_log_open
     OSSL_CMP_print_errors_cb
@@ -2950,6 +3143,8 @@ EXPORTS
     OSSL_CMP_try_certreq
     OSSL_CMP_validate_cert_path
     OSSL_CMP_validate_msg
+    OSSL_CRMF_ATTRIBUTETYPEANDVALUE_dup
+    OSSL_CRMF_ATTRIBUTETYPEANDVALUE_free
     OSSL_CRMF_CERTID_dup
     OSSL_CRMF_CERTID_free
     OSSL_CRMF_CERTID_gen
@@ -2957,14 +3152,23 @@ EXPORTS
     OSSL_CRMF_CERTID_get0_serialNumber
     OSSL_CRMF_CERTID_it
     OSSL_CRMF_CERTID_new
+    OSSL_CRMF_CERTTEMPLATE_dup
     OSSL_CRMF_CERTTEMPLATE_fill
     OSSL_CRMF_CERTTEMPLATE_free
     OSSL_CRMF_CERTTEMPLATE_get0_extensions
     OSSL_CRMF_CERTTEMPLATE_get0_issuer
+    OSSL_CRMF_CERTTEMPLATE_get0_publicKey
     OSSL_CRMF_CERTTEMPLATE_get0_serialNumber
     OSSL_CRMF_CERTTEMPLATE_get0_subject
     OSSL_CRMF_CERTTEMPLATE_it
     OSSL_CRMF_CERTTEMPLATE_new
+    OSSL_CRMF_ENCRYPTEDKEY_free
+    OSSL_CRMF_ENCRYPTEDKEY_get1_encCert
+    OSSL_CRMF_ENCRYPTEDKEY_get1_pkey
+    OSSL_CRMF_ENCRYPTEDKEY_init_envdata
+    OSSL_CRMF_ENCRYPTEDKEY_it
+    OSSL_CRMF_ENCRYPTEDKEY_new
+    OSSL_CRMF_ENCRYPTEDVALUE_decrypt
     OSSL_CRMF_ENCRYPTEDVALUE_free
     OSSL_CRMF_ENCRYPTEDVALUE_get1_encCert
     OSSL_CRMF_ENCRYPTEDVALUE_it
@@ -2974,6 +3178,7 @@ EXPORTS
     OSSL_CRMF_MSGS_new
     OSSL_CRMF_MSGS_verify_popo
     OSSL_CRMF_MSG_PKIPublicationInfo_push0_SinglePubInfo
+    OSSL_CRMF_MSG_centralkeygen_requested
     OSSL_CRMF_MSG_create_popo
     OSSL_CRMF_MSG_dup
     OSSL_CRMF_MSG_free
@@ -3012,6 +3217,12 @@ EXPORTS
     OSSL_CRMF_SINGLEPUBINFO_new
     OSSL_CRMF_pbm_new
     OSSL_CRMF_pbmp_new
+    OSSL_DAY_TIME_BAND_free
+    OSSL_DAY_TIME_BAND_it
+    OSSL_DAY_TIME_BAND_new
+    OSSL_DAY_TIME_free
+    OSSL_DAY_TIME_it
+    OSSL_DAY_TIME_new
     OSSL_DECODER_CTX_add_decoder
     OSSL_DECODER_CTX_add_extra
     OSSL_DECODER_CTX_free
@@ -3092,9 +3303,38 @@ EXPORTS
     OSSL_ENCODER_to_data
     OSSL_ENCODER_to_fp
     OSSL_ENCODER_up_ref
+    OSSL_ERR_STATE_free
+    OSSL_ERR_STATE_new
+    OSSL_ERR_STATE_restore
+    OSSL_ERR_STATE_save
+    OSSL_ERR_STATE_save_to_mark
     OSSL_ESS_check_signing_certs
     OSSL_ESS_signing_cert_new_init
     OSSL_ESS_signing_cert_v2_new_init
+    OSSL_GENERAL_NAMES_print
+    OSSL_HASH_free
+    OSSL_HASH_it
+    OSSL_HASH_new
+    OSSL_HPKE_CTX_free
+    OSSL_HPKE_CTX_get_seq
+    OSSL_HPKE_CTX_new
+    OSSL_HPKE_CTX_set1_authpriv
+    OSSL_HPKE_CTX_set1_authpub
+    OSSL_HPKE_CTX_set1_ikme
+    OSSL_HPKE_CTX_set1_psk
+    OSSL_HPKE_CTX_set_seq
+    OSSL_HPKE_decap
+    OSSL_HPKE_encap
+    OSSL_HPKE_export
+    OSSL_HPKE_get_ciphertext_size
+    OSSL_HPKE_get_grease_value
+    OSSL_HPKE_get_public_encap_size
+    OSSL_HPKE_get_recommended_ikmelen
+    OSSL_HPKE_keygen
+    OSSL_HPKE_open
+    OSSL_HPKE_seal
+    OSSL_HPKE_str2suite
+    OSSL_HPKE_suite_check
     OSSL_HTTP_REQ_CTX_add1_header
     OSSL_HTTP_REQ_CTX_exchange
     OSSL_HTTP_REQ_CTX_free
@@ -3105,6 +3345,7 @@ EXPORTS
     OSSL_HTTP_REQ_CTX_new
     OSSL_HTTP_REQ_CTX_set1_req
     OSSL_HTTP_REQ_CTX_set_expected
+    OSSL_HTTP_REQ_CTX_set_max_response_hdr_lines
     OSSL_HTTP_REQ_CTX_set_max_response_length
     OSSL_HTTP_REQ_CTX_set_request_line
     OSSL_HTTP_adapt_proxy
@@ -3117,13 +3358,51 @@ EXPORTS
     OSSL_HTTP_proxy_connect
     OSSL_HTTP_set1_request
     OSSL_HTTP_transfer
+    OSSL_IETF_ATTR_SYNTAX_VALUE_free
+    OSSL_IETF_ATTR_SYNTAX_VALUE_it
+    OSSL_IETF_ATTR_SYNTAX_VALUE_new
+    OSSL_IETF_ATTR_SYNTAX_add1_value
+    OSSL_IETF_ATTR_SYNTAX_free
+    OSSL_IETF_ATTR_SYNTAX_get0_policyAuthority
+    OSSL_IETF_ATTR_SYNTAX_get0_value
+    OSSL_IETF_ATTR_SYNTAX_get_value_num
+    OSSL_IETF_ATTR_SYNTAX_it
+    OSSL_IETF_ATTR_SYNTAX_new
+    OSSL_IETF_ATTR_SYNTAX_print
+    OSSL_IETF_ATTR_SYNTAX_set0_policyAuthority
+    OSSL_INDICATOR_get_callback
+    OSSL_INDICATOR_set_callback
+    OSSL_INFO_SYNTAX_POINTER_free
+    OSSL_INFO_SYNTAX_POINTER_it
+    OSSL_INFO_SYNTAX_POINTER_new
+    OSSL_INFO_SYNTAX_free
+    OSSL_INFO_SYNTAX_it
+    OSSL_INFO_SYNTAX_new
+    OSSL_ISSUER_SERIAL_free
+    OSSL_ISSUER_SERIAL_get0_issuer
+    OSSL_ISSUER_SERIAL_get0_issuerUID
+    OSSL_ISSUER_SERIAL_get0_serial
+    OSSL_ISSUER_SERIAL_new
+    OSSL_ISSUER_SERIAL_set1_issuer
+    OSSL_ISSUER_SERIAL_set1_issuerUID
+    OSSL_ISSUER_SERIAL_set1_serial
     OSSL_LIB_CTX_free
     OSSL_LIB_CTX_get0_global_default
+    OSSL_LIB_CTX_get_conf_diagnostics
+    OSSL_LIB_CTX_get_data
     OSSL_LIB_CTX_load_config
     OSSL_LIB_CTX_new
     OSSL_LIB_CTX_new_child
     OSSL_LIB_CTX_new_from_dispatch
     OSSL_LIB_CTX_set0_default
+    OSSL_LIB_CTX_set_conf_diagnostics
+    OSSL_NAMED_DAY_free
+    OSSL_NAMED_DAY_it
+    OSSL_NAMED_DAY_new
+    OSSL_OBJECT_DIGEST_INFO_free
+    OSSL_OBJECT_DIGEST_INFO_get0_digest
+    OSSL_OBJECT_DIGEST_INFO_new
+    OSSL_OBJECT_DIGEST_INFO_set1_digest
     OSSL_PARAM_BLD_free
     OSSL_PARAM_BLD_new
     OSSL_PARAM_BLD_push_BN
@@ -3186,6 +3465,7 @@ EXPORTS
     OSSL_PARAM_locate_const
     OSSL_PARAM_merge
     OSSL_PARAM_modified
+    OSSL_PARAM_print_to_bio
     OSSL_PARAM_set_BN
     OSSL_PARAM_set_all_unmodified
     OSSL_PARAM_set_double
@@ -3203,22 +3483,37 @@ EXPORTS
     OSSL_PARAM_set_ulong
     OSSL_PARAM_set_utf8_ptr
     OSSL_PARAM_set_utf8_string
+    OSSL_PRIVILEGE_POLICY_ID_free
+    OSSL_PRIVILEGE_POLICY_ID_it
+    OSSL_PRIVILEGE_POLICY_ID_new
     OSSL_PROVIDER_add_builtin
+    OSSL_PROVIDER_add_conf_parameter
     OSSL_PROVIDER_available
+    OSSL_PROVIDER_conf_get_bool
     OSSL_PROVIDER_do_all
+    OSSL_PROVIDER_get0_default_search_path
     OSSL_PROVIDER_get0_dispatch
     OSSL_PROVIDER_get0_name
     OSSL_PROVIDER_get0_provider_ctx
     OSSL_PROVIDER_get_capabilities
+    OSSL_PROVIDER_get_conf_parameters
     OSSL_PROVIDER_get_params
     OSSL_PROVIDER_gettable_params
     OSSL_PROVIDER_load
+    OSSL_PROVIDER_load_ex
     OSSL_PROVIDER_query_operation
     OSSL_PROVIDER_self_test
     OSSL_PROVIDER_set_default_search_path
     OSSL_PROVIDER_try_load
+    OSSL_PROVIDER_try_load_ex
     OSSL_PROVIDER_unload
     OSSL_PROVIDER_unquery_operation
+    OSSL_ROLE_SPEC_CERT_ID_SYNTAX_free
+    OSSL_ROLE_SPEC_CERT_ID_SYNTAX_it
+    OSSL_ROLE_SPEC_CERT_ID_SYNTAX_new
+    OSSL_ROLE_SPEC_CERT_ID_free
+    OSSL_ROLE_SPEC_CERT_ID_it
+    OSSL_ROLE_SPEC_CERT_ID_new
     OSSL_SELF_TEST_free
     OSSL_SELF_TEST_get_callback
     OSSL_SELF_TEST_new
@@ -3226,6 +3521,7 @@ EXPORTS
     OSSL_SELF_TEST_oncorrupt_byte
     OSSL_SELF_TEST_onend
     OSSL_SELF_TEST_set_callback
+    OSSL_STACK_OF_X509_free
     OSSL_STORE_INFO_free
     OSSL_STORE_INFO_get0_CERT
     OSSL_STORE_INFO_get0_CRL
@@ -3288,6 +3584,7 @@ EXPORTS
     OSSL_STORE_attach
     OSSL_STORE_close
     OSSL_STORE_ctrl
+    OSSL_STORE_delete
     OSSL_STORE_do_all_loaders
     OSSL_STORE_eof
     OSSL_STORE_error
@@ -3300,7 +3597,47 @@ EXPORTS
     OSSL_STORE_supports_search
     OSSL_STORE_unregister_loader
     OSSL_STORE_vctrl
+    OSSL_TARGETING_INFORMATION_free
+    OSSL_TARGETING_INFORMATION_it
+    OSSL_TARGETING_INFORMATION_new
+    OSSL_TARGETS_free
+    OSSL_TARGETS_it
+    OSSL_TARGETS_new
+    OSSL_TARGET_free
+    OSSL_TARGET_it
+    OSSL_TARGET_new
+    OSSL_TIME_PERIOD_free
+    OSSL_TIME_PERIOD_it
+    OSSL_TIME_PERIOD_new
+    OSSL_TIME_SPEC_ABSOLUTE_free
+    OSSL_TIME_SPEC_ABSOLUTE_it
+    OSSL_TIME_SPEC_ABSOLUTE_new
+    OSSL_TIME_SPEC_DAY_free
+    OSSL_TIME_SPEC_DAY_it
+    OSSL_TIME_SPEC_DAY_new
+    OSSL_TIME_SPEC_MONTH_free
+    OSSL_TIME_SPEC_MONTH_it
+    OSSL_TIME_SPEC_MONTH_new
+    OSSL_TIME_SPEC_TIME_free
+    OSSL_TIME_SPEC_TIME_it
+    OSSL_TIME_SPEC_TIME_new
+    OSSL_TIME_SPEC_WEEKS_free
+    OSSL_TIME_SPEC_WEEKS_it
+    OSSL_TIME_SPEC_WEEKS_new
+    OSSL_TIME_SPEC_X_DAY_OF_free
+    OSSL_TIME_SPEC_X_DAY_OF_it
+    OSSL_TIME_SPEC_X_DAY_OF_new
+    OSSL_TIME_SPEC_free
+    OSSL_TIME_SPEC_it
+    OSSL_TIME_SPEC_new
+    OSSL_USER_NOTICE_SYNTAX_free
+    OSSL_USER_NOTICE_SYNTAX_it
+    OSSL_USER_NOTICE_SYNTAX_new
+    OSSL_get_max_threads
+    OSSL_get_thread_support_flags
     OSSL_parse_url
+    OSSL_set_max_threads
+    OSSL_sleep
     OSSL_trace_begin
     OSSL_trace_enabled
     OSSL_trace_end
@@ -3310,6 +3647,7 @@ EXPORTS
     OSSL_trace_set_channel
     OSSL_trace_set_prefix
     OSSL_trace_set_suffix
+    OSSL_trace_string
     OTHERNAME_cmp
     OTHERNAME_free
     OTHERNAME_it
@@ -3325,10 +3663,15 @@ EXPORTS
     PBKDF2PARAM_free
     PBKDF2PARAM_it
     PBKDF2PARAM_new
+    PBMAC1PARAM_free
+    PBMAC1PARAM_it
+    PBMAC1PARAM_new
+    PBMAC1_get1_pbkdf2_param
     PEM_ASN1_read
     PEM_ASN1_read_bio
     PEM_ASN1_write
     PEM_ASN1_write_bio
+    PEM_ASN1_write_bio_ctx
     PEM_SignFinal
     PEM_SignInit
     PEM_SignUpdate
@@ -3365,6 +3708,7 @@ EXPORTS
     PEM_read_RSAPublicKey
     PEM_read_RSA_PUBKEY
     PEM_read_X509
+    PEM_read_X509_ACERT
     PEM_read_X509_AUX
     PEM_read_X509_CRL
     PEM_read_X509_PUBKEY
@@ -3392,6 +3736,7 @@ EXPORTS
     PEM_read_bio_RSAPublicKey
     PEM_read_bio_RSA_PUBKEY
     PEM_read_bio_X509
+    PEM_read_bio_X509_ACERT
     PEM_read_bio_X509_AUX
     PEM_read_bio_X509_CRL
     PEM_read_bio_X509_PUBKEY
@@ -3421,6 +3766,7 @@ EXPORTS
     PEM_write_RSAPublicKey
     PEM_write_RSA_PUBKEY
     PEM_write_X509
+    PEM_write_X509_ACERT
     PEM_write_X509_AUX
     PEM_write_X509_CRL
     PEM_write_X509_PUBKEY
@@ -3455,6 +3801,7 @@ EXPORTS
     PEM_write_bio_RSAPublicKey
     PEM_write_bio_RSA_PUBKEY
     PEM_write_bio_X509
+    PEM_write_bio_X509_ACERT
     PEM_write_bio_X509_AUX
     PEM_write_bio_X509_CRL
     PEM_write_bio_X509_PUBKEY
@@ -3488,11 +3835,14 @@ EXPORTS
     PKCS12_SAFEBAG_get0_safes
     PKCS12_SAFEBAG_get0_type
     PKCS12_SAFEBAG_get1_cert
+    PKCS12_SAFEBAG_get1_cert_ex
     PKCS12_SAFEBAG_get1_crl
+    PKCS12_SAFEBAG_get1_crl_ex
     PKCS12_SAFEBAG_get_bag_nid
     PKCS12_SAFEBAG_get_nid
     PKCS12_SAFEBAG_it
     PKCS12_SAFEBAG_new
+    PKCS12_SAFEBAG_set0_attrs
     PKCS12_add1_attr_by_NID
     PKCS12_add1_attr_by_txt
     PKCS12_add_CSPName_asc
@@ -3510,6 +3860,7 @@ EXPORTS
     PKCS12_add_secret
     PKCS12_create
     PKCS12_create_ex
+    PKCS12_create_ex2
     PKCS12_decrypt_skey
     PKCS12_decrypt_skey_ex
     PKCS12_free
@@ -3543,6 +3894,7 @@ EXPORTS
     PKCS12_pbe_crypt
     PKCS12_pbe_crypt_ex
     PKCS12_set_mac
+    PKCS12_set_pbmac1_pbkdf2
     PKCS12_setup_mac
     PKCS12_unpack_authsafes
     PKCS12_unpack_p7data
@@ -3726,6 +4078,9 @@ EXPORTS
     RAND_pseudo_bytes
     RAND_screen
     RAND_seed
+    RAND_set0_private
+    RAND_set0_public
+    RAND_set1_random_provider
     RAND_set_DRBG_type
     RAND_set_rand_engine
     RAND_set_rand_method
@@ -4130,6 +4485,10 @@ EXPORTS
     TS_VERIFY_CTX_free
     TS_VERIFY_CTX_init
     TS_VERIFY_CTX_new
+    TS_VERIFY_CTX_set0_certs
+    TS_VERIFY_CTX_set0_data
+    TS_VERIFY_CTX_set0_imprint
+    TS_VERIFY_CTX_set0_store
     TS_VERIFY_CTX_set_certs
     TS_VERIFY_CTX_set_data
     TS_VERIFY_CTX_set_flags
@@ -4261,6 +4620,53 @@ EXPORTS
     X509V3_set_issuer_pkey
     X509V3_set_nconf
     X509V3_string_free
+    X509_ACERT_INFO_free
+    X509_ACERT_INFO_it
+    X509_ACERT_INFO_new
+    X509_ACERT_ISSUER_V2FORM_free
+    X509_ACERT_ISSUER_V2FORM_new
+    X509_ACERT_add1_attr
+    X509_ACERT_add1_attr_by_NID
+    X509_ACERT_add1_attr_by_OBJ
+    X509_ACERT_add1_attr_by_txt
+    X509_ACERT_add1_ext_i2d
+    X509_ACERT_add_attr_nconf
+    X509_ACERT_delete_attr
+    X509_ACERT_dup
+    X509_ACERT_free
+    X509_ACERT_get0_extensions
+    X509_ACERT_get0_holder_baseCertId
+    X509_ACERT_get0_holder_digest
+    X509_ACERT_get0_holder_entityName
+    X509_ACERT_get0_info_sigalg
+    X509_ACERT_get0_issuerName
+    X509_ACERT_get0_issuerUID
+    X509_ACERT_get0_notAfter
+    X509_ACERT_get0_notBefore
+    X509_ACERT_get0_serialNumber
+    X509_ACERT_get0_signature
+    X509_ACERT_get_attr
+    X509_ACERT_get_attr_by_NID
+    X509_ACERT_get_attr_by_OBJ
+    X509_ACERT_get_attr_count
+    X509_ACERT_get_ext_d2i
+    X509_ACERT_get_signature_nid
+    X509_ACERT_get_version
+    X509_ACERT_it
+    X509_ACERT_new
+    X509_ACERT_print
+    X509_ACERT_print_ex
+    X509_ACERT_set0_holder_baseCertId
+    X509_ACERT_set0_holder_digest
+    X509_ACERT_set0_holder_entityName
+    X509_ACERT_set1_issuerName
+    X509_ACERT_set1_notAfter
+    X509_ACERT_set1_notBefore
+    X509_ACERT_set1_serialNumber
+    X509_ACERT_set_version
+    X509_ACERT_sign
+    X509_ACERT_sign_ctx
+    X509_ACERT_verify
     X509_ALGORS_it
     X509_ALGOR_cmp
     X509_ALGOR_copy
@@ -4458,6 +4864,7 @@ EXPORTS
     X509_PUBKEY_new_ex
     X509_PUBKEY_set
     X509_PUBKEY_set0_param
+    X509_PUBKEY_set0_public_key
     X509_PURPOSE_add
     X509_PURPOSE_cleanup
     X509_PURPOSE_get0
@@ -4468,6 +4875,7 @@ EXPORTS
     X509_PURPOSE_get_count
     X509_PURPOSE_get_id
     X509_PURPOSE_get_trust
+    X509_PURPOSE_get_unused_id
     X509_PURPOSE_set
     X509_REQ_INFO_free
     X509_REQ_INFO_it
@@ -4551,6 +4959,7 @@ EXPORTS
     X509_STORE_CTX_get0_param
     X509_STORE_CTX_get0_parent_ctx
     X509_STORE_CTX_get0_policy_tree
+    X509_STORE_CTX_get0_rpk
     X509_STORE_CTX_get0_store
     X509_STORE_CTX_get0_untrusted
     X509_STORE_CTX_get1_certs
@@ -4578,6 +4987,7 @@ EXPORTS
     X509_STORE_CTX_get_verify
     X509_STORE_CTX_get_verify_cb
     X509_STORE_CTX_init
+    X509_STORE_CTX_init_rpk
     X509_STORE_CTX_new
     X509_STORE_CTX_new_ex
     X509_STORE_CTX_print_verify_cb
@@ -4585,17 +4995,20 @@ EXPORTS
     X509_STORE_CTX_set0_crls
     X509_STORE_CTX_set0_dane
     X509_STORE_CTX_set0_param
+    X509_STORE_CTX_set0_rpk
     X509_STORE_CTX_set0_trusted_stack
     X509_STORE_CTX_set0_untrusted
     X509_STORE_CTX_set0_verified_chain
     X509_STORE_CTX_set_cert
     X509_STORE_CTX_set_current_cert
+    X509_STORE_CTX_set_current_reasons
     X509_STORE_CTX_set_default
     X509_STORE_CTX_set_depth
     X509_STORE_CTX_set_error
     X509_STORE_CTX_set_error_depth
     X509_STORE_CTX_set_ex_data
     X509_STORE_CTX_set_flags
+    X509_STORE_CTX_set_get_crl
     X509_STORE_CTX_set_purpose
     X509_STORE_CTX_set_time
     X509_STORE_CTX_set_trust
@@ -4609,6 +5022,7 @@ EXPORTS
     X509_STORE_get0_objects
     X509_STORE_get0_param
     X509_STORE_get1_all_certs
+    X509_STORE_get1_objects
     X509_STORE_get_cert_crl
     X509_STORE_get_check_crl
     X509_STORE_get_check_issued
@@ -4683,6 +5097,7 @@ EXPORTS
     X509_VERIFY_PARAM_get_flags
     X509_VERIFY_PARAM_get_hostflags
     X509_VERIFY_PARAM_get_inh_flags
+    X509_VERIFY_PARAM_get_purpose
     X509_VERIFY_PARAM_get_time
     X509_VERIFY_PARAM_inherit
     X509_VERIFY_PARAM_lookup
@@ -4862,6 +5277,7 @@ EXPORTS
     X509at_get_attr_by_OBJ
     X509at_get_attr_count
     X509v3_add_ext
+    X509v3_add_extensions
     X509v3_addr_add_inherit
     X509v3_addr_add_prefix
     X509v3_addr_add_range
@@ -5009,22 +5425,60 @@ EXPORTS
     d2i_OCSP_SERVICELOC
     d2i_OCSP_SIGNATURE
     d2i_OCSP_SINGLERESP
+    d2i_OSSL_AA_DIST_POINT
+    d2i_OSSL_ALLOWED_ATTRIBUTES_CHOICE
+    d2i_OSSL_ALLOWED_ATTRIBUTES_ITEM
+    d2i_OSSL_ALLOWED_ATTRIBUTES_SYNTAX
+    d2i_OSSL_ATAV
+    d2i_OSSL_ATTRIBUTES_SYNTAX
+    d2i_OSSL_ATTRIBUTE_DESCRIPTOR
+    d2i_OSSL_ATTRIBUTE_MAPPING
+    d2i_OSSL_ATTRIBUTE_MAPPINGS
+    d2i_OSSL_ATTRIBUTE_TYPE_MAPPING
+    d2i_OSSL_ATTRIBUTE_VALUE_MAPPING
+    d2i_OSSL_AUTHORITY_ATTRIBUTE_ID_SYNTAX
+    d2i_OSSL_BASIC_ATTR_CONSTRAINTS
+    d2i_OSSL_CMP_ATAVS
     d2i_OSSL_CMP_MSG
     d2i_OSSL_CMP_MSG_bio
     d2i_OSSL_CMP_PKIHEADER
     d2i_OSSL_CMP_PKISI
     d2i_OSSL_CRMF_CERTID
     d2i_OSSL_CRMF_CERTTEMPLATE
+    d2i_OSSL_CRMF_ENCRYPTEDKEY
     d2i_OSSL_CRMF_ENCRYPTEDVALUE
     d2i_OSSL_CRMF_MSG
     d2i_OSSL_CRMF_MSGS
     d2i_OSSL_CRMF_PBMPARAMETER
     d2i_OSSL_CRMF_PKIPUBLICATIONINFO
     d2i_OSSL_CRMF_SINGLEPUBINFO
+    d2i_OSSL_DAY_TIME
+    d2i_OSSL_DAY_TIME_BAND
+    d2i_OSSL_HASH
+    d2i_OSSL_IETF_ATTR_SYNTAX
+    d2i_OSSL_INFO_SYNTAX
+    d2i_OSSL_INFO_SYNTAX_POINTER
+    d2i_OSSL_NAMED_DAY
+    d2i_OSSL_PRIVILEGE_POLICY_ID
+    d2i_OSSL_ROLE_SPEC_CERT_ID
+    d2i_OSSL_ROLE_SPEC_CERT_ID_SYNTAX
+    d2i_OSSL_TARGET
+    d2i_OSSL_TARGETING_INFORMATION
+    d2i_OSSL_TARGETS
+    d2i_OSSL_TIME_PERIOD
+    d2i_OSSL_TIME_SPEC
+    d2i_OSSL_TIME_SPEC_ABSOLUTE
+    d2i_OSSL_TIME_SPEC_DAY
+    d2i_OSSL_TIME_SPEC_MONTH
+    d2i_OSSL_TIME_SPEC_TIME
+    d2i_OSSL_TIME_SPEC_WEEKS
+    d2i_OSSL_TIME_SPEC_X_DAY_OF
+    d2i_OSSL_USER_NOTICE_SYNTAX
     d2i_OTHERNAME
     d2i_PBE2PARAM
     d2i_PBEPARAM
     d2i_PBKDF2PARAM
+    d2i_PBMAC1PARAM
     d2i_PKCS12
     d2i_PKCS12_BAGS
     d2i_PKCS12_MAC_DATA
@@ -5059,6 +5513,8 @@ EXPORTS
     d2i_PUBKEY
     d2i_PUBKEY_bio
     d2i_PUBKEY_ex
+    d2i_PUBKEY_ex_bio
+    d2i_PUBKEY_ex_fp
     d2i_PUBKEY_fp
     d2i_PrivateKey
     d2i_PrivateKey_bio
@@ -5098,6 +5554,9 @@ EXPORTS
     d2i_TS_TST_INFO_fp
     d2i_USERNOTICE
     d2i_X509
+    d2i_X509_ACERT
+    d2i_X509_ACERT_bio
+    d2i_X509_ACERT_fp
     d2i_X509_ALGOR
     d2i_X509_ALGORS
     d2i_X509_ATTRIBUTE
@@ -5233,22 +5692,60 @@ EXPORTS
     i2d_OCSP_SERVICELOC
     i2d_OCSP_SIGNATURE
     i2d_OCSP_SINGLERESP
+    i2d_OSSL_AA_DIST_POINT
+    i2d_OSSL_ALLOWED_ATTRIBUTES_CHOICE
+    i2d_OSSL_ALLOWED_ATTRIBUTES_ITEM
+    i2d_OSSL_ALLOWED_ATTRIBUTES_SYNTAX
+    i2d_OSSL_ATAV
+    i2d_OSSL_ATTRIBUTES_SYNTAX
+    i2d_OSSL_ATTRIBUTE_DESCRIPTOR
+    i2d_OSSL_ATTRIBUTE_MAPPING
+    i2d_OSSL_ATTRIBUTE_MAPPINGS
+    i2d_OSSL_ATTRIBUTE_TYPE_MAPPING
+    i2d_OSSL_ATTRIBUTE_VALUE_MAPPING
+    i2d_OSSL_AUTHORITY_ATTRIBUTE_ID_SYNTAX
+    i2d_OSSL_BASIC_ATTR_CONSTRAINTS
+    i2d_OSSL_CMP_ATAVS
     i2d_OSSL_CMP_MSG
     i2d_OSSL_CMP_MSG_bio
     i2d_OSSL_CMP_PKIHEADER
     i2d_OSSL_CMP_PKISI
     i2d_OSSL_CRMF_CERTID
     i2d_OSSL_CRMF_CERTTEMPLATE
+    i2d_OSSL_CRMF_ENCRYPTEDKEY
     i2d_OSSL_CRMF_ENCRYPTEDVALUE
     i2d_OSSL_CRMF_MSG
     i2d_OSSL_CRMF_MSGS
     i2d_OSSL_CRMF_PBMPARAMETER
     i2d_OSSL_CRMF_PKIPUBLICATIONINFO
     i2d_OSSL_CRMF_SINGLEPUBINFO
+    i2d_OSSL_DAY_TIME
+    i2d_OSSL_DAY_TIME_BAND
+    i2d_OSSL_HASH
+    i2d_OSSL_IETF_ATTR_SYNTAX
+    i2d_OSSL_INFO_SYNTAX
+    i2d_OSSL_INFO_SYNTAX_POINTER
+    i2d_OSSL_NAMED_DAY
+    i2d_OSSL_PRIVILEGE_POLICY_ID
+    i2d_OSSL_ROLE_SPEC_CERT_ID
+    i2d_OSSL_ROLE_SPEC_CERT_ID_SYNTAX
+    i2d_OSSL_TARGET
+    i2d_OSSL_TARGETING_INFORMATION
+    i2d_OSSL_TARGETS
+    i2d_OSSL_TIME_PERIOD
+    i2d_OSSL_TIME_SPEC
+    i2d_OSSL_TIME_SPEC_ABSOLUTE
+    i2d_OSSL_TIME_SPEC_DAY
+    i2d_OSSL_TIME_SPEC_MONTH
+    i2d_OSSL_TIME_SPEC_TIME
+    i2d_OSSL_TIME_SPEC_WEEKS
+    i2d_OSSL_TIME_SPEC_X_DAY_OF
+    i2d_OSSL_USER_NOTICE_SYNTAX
     i2d_OTHERNAME
     i2d_PBE2PARAM
     i2d_PBEPARAM
     i2d_PBKDF2PARAM
+    i2d_PBMAC1PARAM
     i2d_PKCS12
     i2d_PKCS12_BAGS
     i2d_PKCS12_MAC_DATA
@@ -5324,6 +5821,9 @@ EXPORTS
     i2d_TS_TST_INFO_fp
     i2d_USERNOTICE
     i2d_X509
+    i2d_X509_ACERT
+    i2d_X509_ACERT_bio
+    i2d_X509_ACERT_fp
     i2d_X509_ALGOR
     i2d_X509_ALGORS
     i2d_X509_ATTRIBUTE

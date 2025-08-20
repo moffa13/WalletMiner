@@ -8,7 +8,7 @@ inline static constexpr const uint8_t base58map[] = {
 	'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
 	'y', 'z' };
 
-std::string EncodeBase58(const std::vector<uint8_t>& data, const uint8_t* mapping)
+std::string EncodeBase58(const std::array<uint8_t, 25>& data, const uint8_t* mapping)
 {
 	std::vector<uint8_t> digits((data.size() * 138 / 100) + 1);
 	size_t digitslen = 1;
@@ -31,3 +31,5 @@ std::string EncodeBase58(const std::vector<uint8_t>& data, const uint8_t* mappin
 		result.push_back(mapping[digits[digitslen - 1 - i]]);
 	return result;
 }
+
+

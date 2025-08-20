@@ -26,6 +26,9 @@ EXPORTS
     ERR_load_SSL_strings
     OPENSSL_cipher_name
     OPENSSL_init_ssl
+    OSSL_QUIC_client_method
+    OSSL_QUIC_client_thread_method
+    OSSL_QUIC_server_method
     OSSL_default_cipher_list
     OSSL_default_ciphersuites
     PEM_read_SSL_SESSION
@@ -75,6 +78,7 @@ EXPORTS
     SSL_CTX_callback_ctrl
     SSL_CTX_check_private_key
     SSL_CTX_clear_options
+    SSL_CTX_compress_certs
     SSL_CTX_config
     SSL_CTX_ct_is_enabled
     SSL_CTX_ctrl
@@ -84,19 +88,24 @@ EXPORTS
     SSL_CTX_dane_set_flags
     SSL_CTX_enable_ct
     SSL_CTX_flush_sessions
+    SSL_CTX_flush_sessions_ex
     SSL_CTX_free
     SSL_CTX_get0_CA_list
     SSL_CTX_get0_certificate
+    SSL_CTX_get0_client_cert_type
     SSL_CTX_get0_ctlog_store
     SSL_CTX_get0_param
     SSL_CTX_get0_privatekey
     SSL_CTX_get0_security_ex_data
+    SSL_CTX_get0_server_cert_type
+    SSL_CTX_get1_compressed_cert
     SSL_CTX_get_cert_store
     SSL_CTX_get_ciphers
     SSL_CTX_get_client_CA_list
     SSL_CTX_get_client_cert_cb
     SSL_CTX_get_default_passwd_cb
     SSL_CTX_get_default_passwd_cb_userdata
+    SSL_CTX_get_domain_flags
     SSL_CTX_get_ex_data
     SSL_CTX_get_info_callback
     SSL_CTX_get_keylog_callback
@@ -132,14 +141,19 @@ EXPORTS
     SSL_CTX_set0_ctlog_store
     SSL_CTX_set0_security_ex_data
     SSL_CTX_set0_tmp_dh_pkey
+    SSL_CTX_set1_cert_comp_preference
     SSL_CTX_set1_cert_store
+    SSL_CTX_set1_client_cert_type
+    SSL_CTX_set1_compressed_cert
     SSL_CTX_set1_param
+    SSL_CTX_set1_server_cert_type
     SSL_CTX_set_allow_early_data_cb
     SSL_CTX_set_alpn_protos
     SSL_CTX_set_alpn_select_cb
     SSL_CTX_set_async_callback
     SSL_CTX_set_async_callback_arg
     SSL_CTX_set_block_padding
+    SSL_CTX_set_block_padding_ex
     SSL_CTX_set_cert_cb
     SSL_CTX_set_cert_store
     SSL_CTX_set_cert_verify_callback
@@ -161,12 +175,14 @@ EXPORTS
     SSL_CTX_set_default_verify_file
     SSL_CTX_set_default_verify_paths
     SSL_CTX_set_default_verify_store
+    SSL_CTX_set_domain_flags
     SSL_CTX_set_ex_data
     SSL_CTX_set_generate_session_id
     SSL_CTX_set_info_callback
     SSL_CTX_set_keylog_callback
     SSL_CTX_set_max_early_data
     SSL_CTX_set_msg_callback
+    SSL_CTX_set_new_pending_conn_cb
     SSL_CTX_set_next_proto_select_cb
     SSL_CTX_set_next_protos_advertised_cb
     SSL_CTX_set_not_resumable_session_callback
@@ -227,6 +243,7 @@ EXPORTS
     SSL_SESSION_get0_hostname
     SSL_SESSION_get0_id_context
     SSL_SESSION_get0_peer
+    SSL_SESSION_get0_peer_rpk
     SSL_SESSION_get0_ticket
     SSL_SESSION_get0_ticket_appdata
     SSL_SESSION_get_compress_id
@@ -238,6 +255,7 @@ EXPORTS
     SSL_SESSION_get_protocol_version
     SSL_SESSION_get_ticket_lifetime_hint
     SSL_SESSION_get_time
+    SSL_SESSION_get_time_ex
     SSL_SESSION_get_timeout
     SSL_SESSION_has_ticket
     SSL_SESSION_is_resumable
@@ -256,15 +274,19 @@ EXPORTS
     SSL_SESSION_set_max_early_data
     SSL_SESSION_set_protocol_version
     SSL_SESSION_set_time
+    SSL_SESSION_set_time_ex
     SSL_SESSION_set_timeout
     SSL_SESSION_up_ref
     SSL_SRP_CTX_free
     SSL_SRP_CTX_init
     SSL_accept
+    SSL_accept_connection
+    SSL_accept_stream
     SSL_add1_host
     SSL_add1_to_CA_list
     SSL_add_client_CA
     SSL_add_dir_cert_subjects_to_stack
+    SSL_add_expected_rpk
     SSL_add_file_cert_subjects_to_stack
     SSL_add_ssl_module
     SSL_add_store_cert_subjects_to_stack
@@ -287,8 +309,10 @@ EXPORTS
     SSL_client_hello_get0_random
     SSL_client_hello_get0_session_id
     SSL_client_hello_get1_extensions_present
+    SSL_client_hello_get_extension_order
     SSL_client_hello_isv2
     SSL_client_version
+    SSL_compress_certs
     SSL_config
     SSL_connect
     SSL_copy_session_id
@@ -309,23 +333,35 @@ EXPORTS
     SSL_free_buffers
     SSL_get0_CA_list
     SSL_get0_alpn_selected
+    SSL_get0_client_cert_type
+    SSL_get0_connection
     SSL_get0_dane
     SSL_get0_dane_authority
     SSL_get0_dane_tlsa
+    SSL_get0_domain
+    SSL_get0_group_name
+    SSL_get0_listener
     SSL_get0_next_proto_negotiated
     SSL_get0_param
     SSL_get0_peer_CA_list
     SSL_get0_peer_certificate
+    SSL_get0_peer_rpk
     SSL_get0_peer_scts
     SSL_get0_peername
     SSL_get0_security_ex_data
+    SSL_get0_server_cert_type
     SSL_get0_verified_chain
+    SSL_get1_builtin_sigalgs
+    SSL_get1_compressed_cert
     SSL_get1_peer_certificate
     SSL_get1_session
     SSL_get1_supported_ciphers
     SSL_get_SSL_CTX
+    SSL_get_accept_connection_queue_len
+    SSL_get_accept_stream_queue_len
     SSL_get_all_async_fds
     SSL_get_async_status
+    SSL_get_blocking_mode
     SSL_get_certificate
     SSL_get_changed_async_fds
     SSL_get_cipher_list
@@ -333,21 +369,27 @@ EXPORTS
     SSL_get_client_CA_list
     SSL_get_client_ciphers
     SSL_get_client_random
+    SSL_get_conn_close_info
     SSL_get_current_cipher
     SSL_get_current_compression
     SSL_get_current_expansion
     SSL_get_default_passwd_cb
     SSL_get_default_passwd_cb_userdata
     SSL_get_default_timeout
+    SSL_get_domain_flags
     SSL_get_early_data_status
     SSL_get_error
+    SSL_get_event_timeout
     SSL_get_ex_data
     SSL_get_ex_data_X509_STORE_CTX_idx
     SSL_get_fd
     SSL_get_finished
+    SSL_get_handshake_rtt
     SSL_get_info_callback
     SSL_get_key_update_type
     SSL_get_max_early_data
+    SSL_get_negotiated_client_cert_type
+    SSL_get_negotiated_server_cert_type
     SSL_get_num_tickets
     SSL_get_options
     SSL_get_peer_cert_chain
@@ -363,6 +405,7 @@ EXPORTS
     SSL_get_record_padding_callback_arg
     SSL_get_recv_max_early_data
     SSL_get_rfd
+    SSL_get_rpoll_descriptor
     SSL_get_security_callback
     SSL_get_security_level
     SSL_get_selected_srtp_profile
@@ -382,6 +425,13 @@ EXPORTS
     SSL_get_srtp_profiles
     SSL_get_ssl_method
     SSL_get_state
+    SSL_get_stream_id
+    SSL_get_stream_read_error_code
+    SSL_get_stream_read_state
+    SSL_get_stream_type
+    SSL_get_stream_write_error_code
+    SSL_get_stream_write_state
+    SSL_get_value_uint
     SSL_get_verify_callback
     SSL_get_verify_depth
     SSL_get_verify_mode
@@ -389,22 +439,40 @@ EXPORTS
     SSL_get_version
     SSL_get_wbio
     SSL_get_wfd
+    SSL_get_wpoll_descriptor
     SSL_group_to_name
+    SSL_handle_events
     SSL_has_matching_session_id
     SSL_has_pending
     SSL_in_before
     SSL_in_init
+    SSL_inject_net_dgram
+    SSL_is_connection
+    SSL_is_domain
     SSL_is_dtls
     SSL_is_init_finished
+    SSL_is_listener
+    SSL_is_quic
     SSL_is_server
+    SSL_is_stream_local
+    SSL_is_tls
     SSL_key_update
+    SSL_listen
     SSL_load_client_CA_file
     SSL_load_client_CA_file_ex
+    SSL_net_read_desired
+    SSL_net_write_desired
     SSL_new
+    SSL_new_domain
+    SSL_new_from_listener
+    SSL_new_listener
+    SSL_new_listener_from
     SSL_new_session_ticket
+    SSL_new_stream
     SSL_peek
     SSL_peek_ex
     SSL_pending
+    SSL_poll
     SSL_read
     SSL_read_early_data
     SSL_read_ex
@@ -421,8 +489,13 @@ EXPORTS
     SSL_set0_security_ex_data
     SSL_set0_tmp_dh_pkey
     SSL_set0_wbio
+    SSL_set1_cert_comp_preference
+    SSL_set1_client_cert_type
+    SSL_set1_compressed_cert
     SSL_set1_host
+    SSL_set1_initial_peer_addr
     SSL_set1_param
+    SSL_set1_server_cert_type
     SSL_set_SSL_CTX
     SSL_set_accept_state
     SSL_set_allow_early_data_cb
@@ -431,6 +504,8 @@ EXPORTS
     SSL_set_async_callback_arg
     SSL_set_bio
     SSL_set_block_padding
+    SSL_set_block_padding_ex
+    SSL_set_blocking_mode
     SSL_set_cert_cb
     SSL_set_cipher_list
     SSL_set_ciphersuites
@@ -441,10 +516,12 @@ EXPORTS
     SSL_set_default_passwd_cb
     SSL_set_default_passwd_cb_userdata
     SSL_set_default_read_buffer_len
+    SSL_set_default_stream_mode
     SSL_set_ex_data
     SSL_set_fd
     SSL_set_generate_session_id
     SSL_set_hostflags
+    SSL_set_incoming_stream_policy
     SSL_set_info_callback
     SSL_set_max_early_data
     SSL_set_msg_callback
@@ -457,6 +534,9 @@ EXPORTS
     SSL_set_psk_server_callback
     SSL_set_psk_use_session_callback
     SSL_set_purpose
+    SSL_set_quic_tls_cbs
+    SSL_set_quic_tls_early_data_enabled
+    SSL_set_quic_tls_transport_params
     SSL_set_quiet_shutdown
     SSL_set_read_ahead
     SSL_set_record_padding_callback
@@ -478,15 +558,19 @@ EXPORTS
     SSL_set_tlsext_use_srtp
     SSL_set_tmp_dh_callback
     SSL_set_trust
+    SSL_set_value_uint
     SSL_set_verify
     SSL_set_verify_depth
     SSL_set_verify_result
     SSL_set_wfd
     SSL_shutdown
+    SSL_shutdown_ex
     SSL_srp_server_param_with_username
     SSL_state_string
     SSL_state_string_long
     SSL_stateless
+    SSL_stream_conclude
+    SSL_stream_reset
     SSL_trace
     SSL_up_ref
     SSL_use_PrivateKey
@@ -508,6 +592,7 @@ EXPORTS
     SSL_write
     SSL_write_early_data
     SSL_write_ex
+    SSL_write_ex2
     TLS_client_method
     TLS_method
     TLS_server_method
@@ -521,4 +606,5 @@ EXPORTS
     TLSv1_method
     TLSv1_server_method
     d2i_SSL_SESSION
+    d2i_SSL_SESSION_ex
     i2d_SSL_SESSION

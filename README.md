@@ -13,7 +13,9 @@ This is very unlikely to work.
 The openssl & libsecp256k1 are already in the project, the dll files are in x64\Debug
 
 Download the database dump containing the balances of all the used addresses.
+
 This can be found here: https://gz.blockchair.com/bitcoin/addresses/
+
 And here: https://privatekeyfinder.io/download/
 
 Download the official bitcoin-core/secp256k1 library and build it.
@@ -22,18 +24,23 @@ Download the official bitcoin-core/secp256k1 library and build it.
 
 Example with CMake & Visual Studio 2022
 
+```bash
 git clone git@github.com:bitcoin-core/secp256k1.git
 cd secp256k1
 cmake -G "Visual Studio 17 2022" -A x64 -B build
 cmake --build build --config RelWithDebInfo
+```
 
 Copy the include files from include directory to third-party\secp256k1\include
+
 Copy the dll file from build\bin\RelWithDebInfo\libsecp256k1-6.dll to the root directory of exe file (x64\Debug\libsecp256k1-6.dll)
+
 Copy the lib file from build\lib\RelWithDebInfo\libsecp256k1.lib to the project (third-party\secp256k1\lib)
 
 # Build Openssl
 
-You can build openssl from source and do the same steps as for libsecp256k1 (include directory, lib and dll files)
+You can build openssl from source and do the same steps as for libsecp256k1 (include directory, lib and dll files),
+
 or download a compiled version here: https://slproweb.com/products/Win32OpenSSL.html (do not use light version)
 
 Finally run the program with the balance file as argument:
@@ -52,7 +59,7 @@ Finally run the program with the balance file as argument:
 
 # Build for macOS
 
-```
+```bash
 brew tap cuber/homebrew-libsecp256k1
 brew install libsecp256k1
 brew install openssl

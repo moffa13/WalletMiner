@@ -10,17 +10,23 @@ This is very unlikely to work.
 
 # Build for Windows
 
-The openssl & libsecp256k1 are already in the project, the dll files are in x64\Debug
+The openssl & libsecp256k1 are already in the project, the dll files are in their respective folders
 
 Download and extract the database dump containing the balances of all the used addresses.
 
 This can be found here: https://gz.blockchair.com/bitcoin/addresses/
 
-Download the official bitcoin-core/secp256k1 library and build it.
+Build using CMake by running build_vs2026.bat
+
+Finally run the program located in build\src_cpu\Release with the balance file as argument:
+
+`WalletMinerCPU.exe M:\blockchair_bitcoin_addresses_latest.tsv`
 
 ## Build libsecp256k1 on windows x64
 
-Example with CMake & Visual Studio 2022
+Download the official bitcoin-core/secp256k1 library and build it.
+
+Example with CMake & Visual Studio 2026
 
 ```bash
 git clone git@github.com:bitcoin-core/secp256k1.git
@@ -33,23 +39,20 @@ Copy the include files from include directory to third-party\secp256k1\include
 
 Copy the dll file from build\bin\RelWithDebInfo\libsecp256k1-6.dll to third-party\secp256k1
 
-Copy the lib file from build\lib\RelWithDebInfo\libsecp256k1.lib to the project (third-party\secp256k1\lib)
+Copy the lib file from build\lib\RelWithDebInfo\libsecp256k1.lib to third-party\secp256k1\lib
 
-# Build Openssl
+## Build Openssl
 
 You can build openssl from source and do the same steps as for libsecp256k1 (include directory, lib and dll files),
 
 or download a compiled version here: https://slproweb.com/products/Win32OpenSSL.html (do not use light version)
 
-Finally run the program with the balance file as argument:
-
-`WalletMiner.exe M:\blockchair_bitcoin_addresses_latest.tsv`
-
 # Build for Linux
 
-`sudo apt-get install -y g++ libssl-dev libsecp256k1-dev`
-
-`./build.sh`
+```bash
+sudo apt-get install -y g++ libssl-dev libsecp256k1-dev
+./build.sh
+```
 
 Finally run the program with the balance file as argument:
 
@@ -61,9 +64,9 @@ Finally run the program with the balance file as argument:
 brew tap cuber/homebrew-libsecp256k1
 brew install libsecp256k1
 brew install openssl
-g++ -I"./third-party/openssl/include" -I"./third-party/secp256k1/include" -L"/opt/homebrew/lib" -L"/opt/homebrew/opt/openssl/lib" -pthread --std="c++17" "./WalletMiner/WalletMiner.cpp" -lsecp256k1 -lcrypto -lssl -o ./WMiner
+./build.sh
 ```
 
 Finally run the program with the balance file as argument:
 
-`./WMiner /Users/x/Desktop/blockchair_bitcoin_addresses_latest.tsv`
+`./WallerMinerCPU /Users/x/Desktop/blockchair_bitcoin_addresses_latest.tsv`

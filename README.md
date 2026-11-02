@@ -16,8 +16,6 @@ Download and extract the database dump containing the balances of all the used a
 
 This can be found here: https://gz.blockchair.com/bitcoin/addresses/
 
-And here: https://privatekeyfinder.io/download/ (blockchair_bitcoin_addresses_latest.tsv.gz)
-
 Download the official bitcoin-core/secp256k1 library and build it.
 
 ## Build libsecp256k1 on windows x64
@@ -27,13 +25,13 @@ Example with CMake & Visual Studio 2022
 ```bash
 git clone git@github.com:bitcoin-core/secp256k1.git
 cd secp256k1
-cmake -G "Visual Studio 17 2022" -A x64 -B build
+cmake -G "Visual Studio 18 2026" -A x64 -B build
 cmake --build build --config RelWithDebInfo
 ```
 
 Copy the include files from include directory to third-party\secp256k1\include
 
-Copy the dll file from build\bin\RelWithDebInfo\libsecp256k1-6.dll to the root directory of exe file (x64\Debug\libsecp256k1-6.dll)
+Copy the dll file from build\bin\RelWithDebInfo\libsecp256k1-6.dll to third-party\secp256k1
 
 Copy the lib file from build\lib\RelWithDebInfo\libsecp256k1.lib to the project (third-party\secp256k1\lib)
 

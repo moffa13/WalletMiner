@@ -1,7 +1,2 @@
-Debug
-Release
+build
 .vs
-.vscode
-WMiner
-!x64/
-!x64/**

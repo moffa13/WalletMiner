@@ -104,7 +104,7 @@ void loadValidAddresses(const char* path) {
 			continue;
 		}
 
-		if (!(address.starts_with("1") || address.starts_with("3"))) {
+		if (!(address.starts_with("1"))) {
 			continue;
 		}
 

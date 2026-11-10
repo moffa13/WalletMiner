@@ -28,14 +28,19 @@
 
 #include "secp256k1.cuh"   // cœur device d'UltrafastSecp256k1
 
+// Pointeur vers la LUT générateur (16 x 65536 AffinePoint, 64 Mo) en mémoire
+// globale. Construit/chargé côté hôte (voir gen_lut.cuh) puis publié ici via
+// cudaMemcpyToSymbol(g_gen_lut, &d_ptr, sizeof(d_ptr)) AVANT le lancement.
+__device__ secp256k1::cuda::AffinePoint* g_gen_lut = nullptr;
+
 __device__ __forceinline__ bool secp_pubkey_compressed(const uint8_t priv[32],
-                                                       uint8_t pub33[33]) {
+    uint8_t pub33[33]) {
     using namespace secp256k1::cuda;
     Scalar k;
-    scalar_from_bytes(priv, &k);              // 32 o big-endian -> Scalar(limbs[4])
+    scalar_from_bytes(priv, &k);                   // 32 o big-endian -> Scalar
     JacobianPoint P;
-    scalar_mul_generator_w8(&k, &P);          // P = k·G, fixed-base (fenêtre w=8)
-    return point_to_compressed(&P, pub33);    // 0x02/0x03 || x ; false si infini
+    scalar_mul_generator_lut(&k, g_gen_lut, &P);   // P = k·G, comb LUT (0 doublement)
+    return point_to_compressed(&P, pub33);         // 0x02/0x03 || x ; false si infini
 }
 
 // ---------------------------------------------------------------------------
@@ -44,14 +49,14 @@ __device__ __forceinline__ bool secp_pubkey_compressed(const uint8_t priv[32],
 #elif defined(SECP_STUB)
 
 __device__ __forceinline__ bool secp_pubkey_compressed(const uint8_t priv[32],
-                                                       uint8_t pub33[33]) {
+    uint8_t pub33[33]) {
     pub33[0] = 0x02 | (priv[31] & 1);
-    #pragma unroll
+#pragma unroll
     for (int i = 0; i < 32; ++i)
         pub33[1 + i] = priv[i] ^ (uint8_t)(0x9eu * (i + 1));
     return true;
 }
 
 #else
-  #error "secp256k1_hook.cuh : choisis -DSECP_UFS (UltrafastSecp256k1) ou -DSECP_STUB."
+#error "secp256k1_hook.cuh : choisis -DSECP_UFS (UltrafastSecp256k1) ou -DSECP_STUB."
 #endif

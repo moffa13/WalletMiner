@@ -84,14 +84,13 @@ const std::array<uint8_t, 32> SECP256K1_N = {
 // Format is P2PKH
 // Will only load keys starting with 1 or 3
 // Other keys such as bc1...., s-..... will be ignored
-void loadValidAddresses(const char* path){
-	std::cout << "Loading keys..." << std::endl;
+void loadValidAddresses(const char* path) {
 	std::ifstream f{ path };
 	if (f.fail()) {
 		throw std::runtime_error{ "Error opening addresses file." };
 	}
 	std::string line;
-	while(std::getline(f, line)){
+	while (std::getline(f, line)) {
 		if (line.empty()) continue;
 		auto pos = line.find_first_of('\t');
 		if (pos == std::string::npos) continue;
@@ -110,7 +109,7 @@ void loadValidAddresses(const char* path){
 		}
 
 		try {
-			std::array<uint8_t, 36> key{0};
+			std::array<uint8_t, 36> key{ 0 };
 			std::strncpy(reinterpret_cast<char*>(key.data()), address.c_str(), 35);
 			key.back() = '\0';
 			addresses.emplace(key, balance);
@@ -120,15 +119,14 @@ void loadValidAddresses(const char* path){
 			continue;
 		}
 	}
-	std::cout << "Loaded " << addresses.size() << " addresses from file" << std::endl;
 }
 
 
 // check if addr is in addresses
-inline std::optional<uint64_t> checkAddr(std::array<uint8_t, 36> const& addr){
+inline std::optional<uint64_t> checkAddr(std::array<uint8_t, 36> const& addr) {
 
 	auto it = addresses.find(addr);
-	if(it != addresses.end()){
+	if (it != addresses.end()) {
 		return it->second;
 	}
 	return std::nullopt;
@@ -149,7 +147,7 @@ std::array<uint8_t, 36> privateKeyToAddress(std::array<uint8_t, 32> const& prvke
 	if (secp256k1_ec_pubkey_create(ctx, &pubkey, prvkey.data()) == 0) {
 		throw std::runtime_error{ "Cannot make pubkey" };
 	}
-	
+
 	// Serialize pub key in compressed form
 	uint8_t serializedpubKey[33];
 	size_t ss = 33;
@@ -196,15 +194,15 @@ std::string prvKeyToString(std::array<uint8_t, 32> const& prvKey) {
 	std::stringstream ss;
 	ss << std::hex;
 
-	for (uint8_t  i : prvKey) {
+	for (uint8_t i : prvKey) {
 		ss << std::setw(2) << std::setfill('0') << static_cast<int>(i);
 	}
 
-	return ss.str();	
+	return ss.str();
 }
 
 // returns true if the generated private key is in the accepted range for a bitcoin address
-bool checkValidPrvKey(const std::array<uint8_t, 32>&v) {
+bool checkValidPrvKey(const std::array<uint8_t, 32>& v) {
 	return std::lexicographical_compare(
 		v.begin(), v.end(),
 		SECP256K1_N.begin(), SECP256K1_N.end()
@@ -223,12 +221,12 @@ std::array<uint8_t, 32> generateRandomPrvKey(bool trueGenerator = false) {
 		for (int i = 0; i < 4; i++) {
 			uint64_t part = udist(rng);
 			for (int j = 0; j < 8; j++) {
-				key[i * 8 + j] = static_cast<uint8_t >(part & 0xFF);
+				key[i * 8 + j] = static_cast<uint8_t>(part & 0xFF);
 				part >>= 8;
 			}
 		}
 	} while (trueGenerator && !checkValidPrvKey(key));
-	
+
 	return key;
 
 }
@@ -269,8 +267,8 @@ void check() {
 		if (res) {
 			// Really unlikely to happen, no need to sync =D
 			std::cout << "-------------------- NON NULL BALANCE FOUND --------------------" << std::endl;
-			std::ofstream os{ std::filesystem::current_path().string() + "/walletminer.balance." + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ".txt", std::ofstream::app};
-			std::string addrBal{ prvKeyToString(prv) + " => [" + arrToStr(pub) + "]" + ", BALANCE: " + std::to_string(*res) + "sat\n"};
+			std::ofstream os{ std::filesystem::current_path().string() + "/walletminer.balance." + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ".txt", std::ofstream::app };
+			std::string addrBal{ prvKeyToString(prv) + " => [" + arrToStr(pub) + "]" + ", BALANCE: " + std::to_string(*res) + "sat\n" };
 			os.write(addrBal.c_str(), addrBal.size());
 			os.close();
 		}
@@ -279,10 +277,10 @@ void check() {
 }
 
 void writeStats() {
-	if(doneStats > writeEveryXKeys){
+	if (doneStats > writeEveryXKeys) {
 		std::string end = " tested keys";
 		std::string filename = std::filesystem::current_path().string() + "/walletminer.stats.txt";
-		std::fstream statsFile{ filename, std::fstream::in | std::fstream::out};
+		std::fstream statsFile{ filename, std::fstream::in | std::fstream::out };
 		if (statsFile.fail()) {
 			return;
 		}
@@ -339,6 +337,8 @@ int main(int argc, char** argv) {
 
 	secp256k1_context_destroy(ctx);
 
+	std::cout << "Loading keys..." << std::endl;
+
 	try {
 		loadValidAddresses(argv[1]);
 #ifndef NDEBUG
@@ -353,9 +353,15 @@ int main(int argc, char** argv) {
 		return 2;
 	}
 
+	if (addresses.empty()) {
+		std::cerr << "No valid address found" << std::endl;
+		return 2;
+	}
+	std::cout << "Loaded " << addresses.size() << " addresses from file" << std::endl;
+
 	// Using a random pub key in the file to see if it finds it in addresses
 	assert(checkAddr(strToArr("1LruNZjwamWJXThX2Y8C2d47QqhAkkc5os")).has_value());
-	
+
 
 	unsigned int _maxThreads = std::thread::hardware_concurrency(); // Concurrent threads
 	std::vector<std::thread> threads;
@@ -369,7 +375,7 @@ int main(int argc, char** argv) {
 					std::cout << e.what() << std::endl;
 					exit(1);
 				}
-			}} 
+			} }
 		);
 	}
 

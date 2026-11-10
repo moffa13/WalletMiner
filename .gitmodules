@@ -1,0 +1,3 @@
+[submodule "third-party/UltrafastSecp256k1"]
+	path = third-party/UltrafastSecp256k1
+	url = https://github.com/shrec/UltrafastSecp256k1

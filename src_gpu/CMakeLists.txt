@@ -1,3 +1,7 @@
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    message(WARNING "CMAKE_CUDA_ARCHITECTURES not set -- CMake will pick a default that may not match your GPU. Pass -DCMAKE_CUDA_ARCHITECTURES=<cc>.")
+endif()
+
 enable_language(CUDA)
 
 find_package(OpenSSL REQUIRED)

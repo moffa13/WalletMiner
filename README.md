@@ -1,72 +1,77 @@
 # WalletMiner
 
-This is a random multithread wallet miner for Bitcoin.
+A random Bitcoin wallet miner. It generates random 32-byte private keys,
+derives their Bitcoin address, and checks each one against a file of all
+funded addresses — writing the private key and balance on a match.
 
-It generates a random 32 bytes bitcoin address and uses ECDSA followed by SHA256 and ripemd160 to generate the public address.
-The address is then checked against a balance file containing all non-null bitcoin addresses and writes the private key followed by the balance if there is a match.
+Two independent implementations share the same concept and the same balance
+file:
 
-Note that there is 2^256 or 16^64 possibilities which is equal to ~1 x 10^77
-This is very unlikely to work.
+| Implementation | Where | Doc |
+|---|---|---|
+| **CPU** — multithreaded, OpenSSL + libsecp256k1 | `src_cpu/` | [src_cpu/README.md](src_cpu/README.md) |
+| **GPU** — CUDA, UltrafastSecp256k1 + Bloom filter | `src_gpu/` | [src_gpu/README.md](src_gpu/README.md) |
 
-# Build for Windows
+## How it works
 
-The openssl & libsecp256k1 are already in the project, the dll files are in their respective folders
+Both versions run the same pipeline per candidate key:
 
-Download and extract the database dump containing the balances of all the used addresses.
-
-This can be found here: https://gz.blockchair.com/bitcoin/addresses/
-
-Build using CMake by running build_vs2026.bat
-
-Finally run the program located in build\src_cpu\Release with the balance file as argument:
-
-`WalletMinerCPU.exe M:\blockchair_bitcoin_addresses_latest.tsv`
-
-## Build libsecp256k1 on windows x64
-
-Download the official bitcoin-core/secp256k1 library and build it.
-
-Example with CMake & Visual Studio 2026
-
-```bash
-git clone git@github.com:bitcoin-core/secp256k1.git
-cd secp256k1
-cmake -G "Visual Studio 18 2026" -A x64 -B build
-cmake --build build --config RelWithDebInfo
+```
+priv (32 bytes) --EC--> compressed pubkey (33 bytes)
+      --SHA256--> --RIPEMD160--> hash160 (20 bytes)
+      --0x00 || hash160--> --double SHA256 (4-byte checksum)--> base58 address
 ```
 
-Copy the include files from include directory to third-party\secp256k1\include
+The resulting address (or, on GPU, its hash160) is checked against the balance
+file. The CPU version uses a hash map; the GPU version uses a Bloom filter on
+the device with exact confirmation on the host.
 
-Copy the dll file from build\bin\RelWithDebInfo\libsecp256k1-6.dll to third-party\secp256k1
+> **This is a lottery, not an attack.** The key space is 2^256 ≈ 1 × 10^77.
+> Finding a funded key by chance is astronomically improbable — this project is
+> a benchmark / curiosity, not a practical way to find wallets.
 
-Copy the lib file from build\lib\RelWithDebInfo\libsecp256k1.lib to third-party\secp256k1\lib
+## Balance file (required)
 
-## Build Openssl
+Both versions take a TSV of funded addresses as their argument. Format is one
+`<address>\t<balance_in_sat>` per line.
 
-You can build openssl from source and do the same steps as for libsecp256k1 (include directory, lib and dll files),
+- **Official source** (always current): <https://gz.blockchair.com/bitcoin/addresses/>
+  — download the latest `blockchair_bitcoin_addresses_latest.tsv.gz` and extract it.
+- **Mirror** (convenience copy, may be outdated, uploaded november 2nd, 2026):
+  <https://mega.nz/file/kdpFSQRS#Crxhe0iTnudDmeLaptIyk9Vhd_-ICnlMGWkZ5VuPSfI>
 
-or download a compiled version here: https://slproweb.com/products/Win32OpenSSL.html (do not use light version)
+The file is large (~3 GB uncompressed)
 
-# Build for Linux
+## Build
+
+The project uses CMake. The CPU target always builds; the GPU target builds only
+when a CUDA compiler is found (otherwise it's skipped silently).
 
 ```bash
-sudo apt-get install -y g++ libssl-dev libsecp256k1-dev
-./build.sh
+cmake -S . -B build
+cmake --build build --config Release
 ```
 
-Finally run the program with the balance file as argument:
+Use the files *build.sh* or *build_vsxxxx.bat* to compile all targets in Release mode
 
-`cd build/src_cpu && ./WallerMinerCPU /home/blockchair_bitcoin_addresses_latest.tsv`
+For the GPU build, set your card's architecture — see
+[src_gpu/README.md](src_gpu/README.md#choosing-the-gpu-architecture). Per-OS
+dependencies are in each sub-README.
 
-# Build for macOS
+## Repository layout
 
-```bash
-brew tap cuber/homebrew-libsecp256k1
-brew install libsecp256k1
-brew install openssl
-./build.sh
+```
+WalletMiner/
+├─ src_cpu/          CPU implementation  (see src_cpu/README.md)
+├─ src_gpu/          CUDA implementation (see src_gpu/README.md)
+├─ third-party/      secp256k1, OpenSSL (CPU), UltrafastSecp256k1 (GPU)
+├─ CMakeLists.txt    root: builds CPU, and GPU when CUDA is available
+└─ README.md         this file
 ```
 
-Finally run the program with the balance file as argument:
+## Credits & licenses
 
-`./WallerMinerCPU /Users/x/Desktop/blockchair_bitcoin_addresses_latest.tsv`
+- CPU EC: [bitcoin-core/secp256k1](https://github.com/bitcoin-core/secp256k1) (MIT)
+- GPU EC: [shrec/UltrafastSecp256k1](https://github.com/shrec/UltrafastSecp256k1)
+- RIPEMD-160: libbtc (MIT), see header
+- Hashing + base58: adapted in this repo, host+device

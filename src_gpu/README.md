@@ -1,103 +1,158 @@
-# keybench (CUDA) — version GPU de ton benchmark de génération de clés
+# WalletMiner — GPU (CUDA)
 
-Portage GPU/CUDA du `Benchmark.cpp` CPU. Même pipeline, mêmes résultats :
+CUDA implementation. Each GPU thread derives many addresses per launch; every
+candidate's `hash160` is tested against a Bloom filter on the device, and the
+rare candidates are confirmed against the exact set on the host.
+
+See the [root README](../README.md) for the shared concept and the balance-file
+download.
+
+## Pipeline
 
 ```
-priv (32o) → pubkey compressée (33o) → SHA256 → RIPEMD160
-           → 0x00‖hash160 → double-SHA256 (checksum 4o) → base58
+priv (32 bytes) --k·G (fixed-base LUT)--> compressed pubkey (33 bytes)
+      --SHA256--> --RIPEMD160--> hash160 (20 bytes)
+      --Bloom filter (device)--> candidate? --exact map (host)--> match
 ```
 
-Le débit est mesuré en clés/s **sur le kernel seul** (cudaEvent), donc directement
-comparable au chiffre du CPU.
+The hashing + base58 path is validated bit-exact against a known test vector
+(`be63955…` → `1Dai8FBumerEYMzijW7hfMgD45HowqYzVP`); run `--selftest` to recheck.
 
-## Fichiers
+## Files
 
-| Fichier | Rôle |
+| File | Role |
 |---|---|
-| `sha256.cuh` | SHA-256 mono-bloc (≤55 o), host+device, déroulé. |
-| `ripemd160.cuh` | RIPEMD-160 host+device (portage de ton `ripemd160.c`). |
-| `base58.cuh` | base58 de 25 o, host+device, sans `std::vector`/`std::array`. |
-| `address.cuh` | `hash160_from_pubkey`, `address_from_pubkey`, `priv_to_address`. |
-| `secp256k1_hook.cuh` | **Le seul endroit à brancher sur ta lib** (priv→pubkey). |
-| `benchmark.cu` | kernel + harness + `--selftest`. |
-| `Makefile` | cibles `stub`, `all`, `nobase58`, `selftest`. |
+| `sha256.cuh` | SHA-256, single block (≤55 bytes), host+device |
+| `ripemd160.cuh` | RIPEMD-160, host+device (libbtc port) |
+| `base58.cuh` | base58 of a 25-byte payload, host+device |
+| `address.cuh` | `hash160_from_pubkey`, `address_from_pubkey`, `priv_to_address` |
+| `bloom.cuh` | Bloom filter (build on host, query on device) |
+| `gen_lut.cuh` | builds + disk-caches the 64 MB fixed-base generator LUT |
+| `secp256k1_hook.cuh` | priv → compressed pubkey (UltrafastSecp256k1 or stub) |
+| `benchmark.cu` | kernels + scan loop + `--debug` / `--selftest` |
 
-Tout sauf la secp256k1 est **validé bit-exact** contre ton vecteur de test
-(`be63955…` → `1Dai8FBumerEYMzijW7hfMgD45HowqYzVP`) ; le binaire le revérifie
-via `--selftest`.
+## Dependencies
 
-## Démarrer tout de suite (sans ta lib)
+- **CUDA Toolkit 12.0+** (nvcc + a host compiler: MSVC on Windows, GCC on Linux)
+- **GPU with Compute Capability ≥ 7.0** (Volta or newer)
+- [shrec/UltrafastSecp256k1](https://github.com/shrec/UltrafastSecp256k1) —
+  header-only CUDA core, **nothing to link**. Set as a GitHub submodule
 
-```bash
-make selftest            # valide le pipeline de hachage
-make stub ARCH=sm_86     # mets ton archi (sm_89 pour RTX 40xx, etc.)
-./keybench               # débit du pipeline avec une pubkey factice
-./keybench --blocks 2048 --threads 256 --iters 1024
-```
+## Build
 
-Le mode `stub` fabrique une fausse pubkey (pas de vraie courbe elliptique) : il
-ne donne pas de vraies adresses, mais il exécute **tout le hachage** derrière.
-C'est ton **plafond** : le débit que tu obtiendrais si la multiplication EC était
-gratuite. Ça te dit tout de suite si tu seras limité par l'EC ou par le hachage.
-
-## Brancher `nvidia-secp256k1`
-
-Ouvre `secp256k1_hook.cuh` et remplis **une** fonction :
-
-```cpp
-__device__ bool secp_pubkey_compressed(const uint8_t priv[32], uint8_t pub33[33]);
-```
-
-- `priv` : scalaire 32 o **big-endian** (même ordre que le CPU).
-- `pub33` : clé publique **compressée** — `pub33[0] = 0x02|0x03` selon la parité
-  de `y`, `pub33[1..32] = x` big-endian.
-
-Deux cas selon ce qu'expose ta lib (exemples complets dans le fichier) :
-
-- **MODE B** — elle renvoie `(x, y)` affines : tu prends la parité de `y` pour le
-  préfixe et tu copies `x`.
-- **MODE C** — elle sérialise déjà la clé compressée : tu lui passes `pub33`.
-
-Puis :
+The root `CMakeLists.txt` builds this target only when CUDA is detected. From
+the repo root:
 
 ```bash
-make ARCH=sm_86 SECP_INC=/chemin/include SECP_LIB=/chemin/lib
-./keybench
+cmake -S . -B build -DCMAKE_CUDA_ARCHITECTURES=75
+cmake --build build --config Release --target WalletMinerGPU
 ```
 
-Si ta lib charge une table de multiples de `G` depuis l'hôte, appelle son init
-dans `secp_init_host()` (dans `benchmark.cu`) avant le lancement du kernel.
+The executable lands in `build/src_gpu/Release/` (Windows) or
+`build/src_gpu/` (Linux).
 
-## Leviers d'optimisation (par ordre d'impact)
+### Choosing the GPU architecture
 
-1. **Fixed-base / comb sur G.** `pub = priv·G` avec `G` **constant** : la
-   multiplication doit utiliser une table précalculée de multiples de `G`
-   (méthode comb/fenêtrée), pas un double-and-add générique. C'est le facteur
-   dominant (×10–20). Vérifie que ta lib est bien en fixed-base ; sinon c'est le
-   premier chantier.
-2. **Inversion par lots (astuce de Montgomery).** Le passage Jacobien→affine
-   coûte une inversion modulaire par clé. En traitant les clés par batch, on fait
-   **une** inversion pour tout le batch (`a⁻¹, b⁻¹ …` via un seul `inv`). Si ta
-   lib a une API batch, restructure le kernel pour lui donner N scalaires d'un
-   coup au lieu d'appeler `secp_pubkey_compressed` clé par clé.
-3. **Lâcher le base58.** Un vrai scanner compare les 20 octets de `hash160`, pas
-   la chaîne base58 (habillage pur). `make nobase58` mesure ce mode. Pour
-   comparer au CPU, garde le base58 (défaut).
-4. **Occupation.** Joue sur `--threads` (128/256) et `--iters` (assez grand pour
-   amortir le lancement). Le pipeline consomme pas mal de registres (le `w[64]`
-   de SHA-256 surtout) ; si l'occupation est faible, teste
-   `-maxrregcount=64` dans le Makefile et compare.
-5. **Mémoire.** Les clés vivent en registres, zéro accès global dans la boucle
-   (hors `sink` final anti-DCE) : ne réintroduis pas de global/const dans le
-   chemin chaud.
+You **must** set `CMAKE_CUDA_ARCHITECTURES` to your card's compute capability,
+otherwise nvcc targets a default that may not match your GPU (slower, or JIT at
+runtime). Pass it at configure time (`cmake -S . -B build
+-DCMAKE_CUDA_ARCHITECTURES=<cc>`), or set it in CMake.
 
-## Notes
+| GPU family | Example cards | Value |
+|---|---|---|
+| Turing | GTX 16xx, RTX 20xx | `75` |
+| Ampere | RTX 30xx, A100 | `86` (A100: `80`) |
+| Ada | RTX 40xx | `89` |
+| Hopper | H100 | `90` |
 
-- Génération des clés : chaque thread balaie un intervalle de compteur disjoint
-  (mode séquentiel, comme BitCrack). Pour du « vraiment aléatoire par clé »,
-  remplace l'écriture du compteur dans `priv[24..31]` par un PRNG (SplitMix64) ;
-  pour un benchmark de débit ça ne change pas le coût du pipeline.
-- La validité du scalaire vs l'ordre `n` de la courbe est quasi toujours vraie et
-  n'est pas revérifiée dans la boucle chaude (le CPU le faisait par rejet) ;
-  l'impact sur le débit est négligeable.
+> It must be set when you **configure** (`cmake -B build`), not at `--build`.
+> If you reconfigure with a new value, delete `build/` first — the old value is
+> cached.
+
+UltrafastSecp256k1 is C++20, so the GPU target also sets `CUDA_STANDARD 20`.
+
+## Run
+
+```bash
+# Scan a balance file (loops forever until Ctrl+C)
+WalletMinerGPU --scan blockchair_bitcoin_addresses_latest.tsv
+
+# End-to-end self-check: inject a known key + its address, verify the scan finds it
+WalletMinerGPU --debug
+
+# Re-verify the hashing pipeline against the known vector
+WalletMinerGPU --selftest
 ```
+
+Options:
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--scan <file>` | — | balance TSV to search |
+| `--debug` | off | inject a known key and confirm the scan matches it |
+| `--blocks N` | SM × 32 | grid size (0 = auto) |
+| `--threads N` | 256 | threads per block (multiple of 32) |
+| `--iters N` | 256 | keys processed per thread per launch |
+| `--cap N` | 4096 | max Bloom candidates kept per batch |
+| `--selftest` | — | run the hashing self-test and exit |
+
+Confirmed matches are printed and appended to `walletminer.balance.txt`.
+
+## First run: the LUT cache
+
+On the first launch the program builds a 64 MB fixed-base table
+(`secp256k1_gen_lut_v1.bin`, in the working directory) — a few seconds. Every
+later run loads it instantly. The table depends only on the curve generator, so
+it never needs rebuilding; delete the file to force a rebuild. **Don't commit
+it** (it's in `.gitignore`).
+
+## VRAM budget
+
+- Generator LUT: **64 MB** (plus ~110 MB transient during the one-time build)
+- Bloom filter: scales with the target count (~43 bits/address at p=1e-9) —
+  e.g. ~21 M addresses → a 2^30-bit filter ≈ **134 MB**
+- Match buffer: `--cap` × 52 bytes (negligible)
+
+Comfortable on any ≥ 2 GB card.
+
+## Performance notes & next levers
+
+Measured ~21 Mkeys/s on a GTX 1660 Super after switching to the fixed-base LUT
+(from ~3 Mkeys/s with the default windowed multiply). In rough order of
+remaining impact:
+
+1. **Occupancy.** The SHA-256 schedule (`w[64]`) plus the EC points use many
+   registers, limiting resident warps. Try `-maxrregcount=64` (or 72/80) and
+   sweep `--threads` (128 vs 256) and `--iters` (512–2048).
+2. **Batch modular inversion.** Each `point_to_compressed` does one field
+   inversion (Jacobian→affine) per key. Processing keys in batches with
+   Montgomery's trick (`batch_inverse_montgomery`, provided by
+   UltrafastSecp256k1) amortizes it to one inversion per batch — the biggest
+   remaining win, but it means restructuring the kernel around batches.
+3. **Drop base58 in the hot path.** The scan already compares `hash160`
+   (20 bytes), not the base58 string, so base58 is off the hot path.
+4. **Profile** with Nsight Compute to see whether you're compute-bound (EC) or
+   latency-bound (occupancy) before optimizing further.
+
+## Coverage limitations
+
+- **Compressed pubkeys only.** The scan derives the compressed pubkey's
+  hash160. Addresses funded under an *uncompressed* pubkey won't match unless
+  you also test the uncompressed form.
+- **P2PKH (`1…`) only.** `3…` (P2SH) and `bc1…` (bech32) encode script/witness
+  hashes, not a pubkey hash160, so this pipeline cannot match them — they are
+  skipped at load time.
+
+## Key generation
+
+Each batch uploads a fresh random 24-byte prefix; the low 8 bytes of the key are
+the per-thread counter, so one launch covers `blocks × threads × iters` distinct
+keys. This is a random "lottery" sweep — runs are independent and don't resume
+where a previous run left off.
+
+## Stub mode (no EC library)
+
+`secp256k1_hook.cuh` also has a `-DSECP_STUB` mode that fabricates a fake pubkey
+(not a real curve point). It produces no valid addresses but exercises the whole
+hashing path, giving you the hashing-only ceiling — useful to tell whether
+you're EC-bound or hash-bound. Build the default (`-DSECP_UFS`) for real scans.

@@ -36,7 +36,7 @@ printed meanwhile.
 
 ## Build — Windows
 
-OpenSSL and libsecp256k1 are already vendored in `third-party/` (headers + the
+OpenSSL and libsecp256k1 are already vendored in `third-party/win` (headers + the
 `.dll`/`.lib` files in their folders), so you can just configure and build:
 
 ```
@@ -57,8 +57,8 @@ cmake --build build --config RelWithDebInfo
 
 Then copy into the repo:
 - `include/` → `third-party/secp256k1/include`
-- `build/bin/RelWithDebInfo/libsecp256k1-*.dll` → `third-party/secp256k1`
-- `build/lib/RelWithDebInfo/libsecp256k1.lib` → `third-party/secp256k1/lib`
+- `build/bin/RelWithDebInfo/libsecp256k1-*.dll` → `third-party/win/secp256k1`
+- `build/lib/RelWithDebInfo/libsecp256k1.lib` → `third-party/win/secp256k1/lib`
 
 ### OpenSSL
 
@@ -69,15 +69,15 @@ Build from source (same include/lib/dll layout as above) or grab a prebuilt
 
 ```bash
 sudo apt-get install -y g++ libssl-dev libsecp256k1-dev
-cmake -S . -B build && cmake --build build --config Release --target WalletMinerCPU
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --target WalletMinerCPU
 cd build/src_cpu && ./WalletMinerCPU /home/you/blockchair_bitcoin_addresses_latest.tsv
 ```
 
 ## Build — macOS
 
 ```bash
-brew tap cuber/homebrew-libsecp256k1
-brew install libsecp256k1 openssl
-cmake -S . -B build && cmake --build build --config Release --target WalletMinerCPU
+xcode-select --install
+brew install secp256k1 openssl@3
+cmake -S . -B build -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@3)" -DCMAKE_BUILD_TYPE=Release && cmake --build build --target WalletMinerCPU
 ./build/src_cpu/WalletMinerCPU /Users/you/Desktop/blockchair_bitcoin_addresses_latest.tsv
 ```

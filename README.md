@@ -47,8 +47,24 @@ The file is large (~3 GB uncompressed)
 The project uses CMake. The CPU target always builds; the GPU target builds only
 when a CUDA compiler is found (otherwise it's skipped silently).
 
+### CMake for Windows
+<https://cmake.org/download/>
+### CMake & pkgconfig for linux
+`sudo apt install cmake pkg-config`
+### brew & CMake & pkgconfig for macOS
+
+if you do not have Homebrew, type the following command
+
+`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh")`
+
+Finally, run
+
+`brew install cmake pkg-config`
+
+### Build command
+
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
